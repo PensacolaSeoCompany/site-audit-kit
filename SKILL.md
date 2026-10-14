@@ -18,10 +18,10 @@ Before emailing, posting or sharing a report anywhere: ask again, separately, ev
 ## 2. Install (pinned release, never main)
 
     git clone --branch v1.0.0 --depth 1 https://github.com/PensacolaSeoCompany/site-audit-kit
-    cd site-audit-kit && ./install.sh        # ends "SELF-CHECK OK", exit 0; safe to re-run
-    ./install.sh --check                      # self-check only, changes nothing
+    cd site-audit-kit && ./install.sh        # no root; ends "SELF-CHECK OK", exit 0; safe to re-run
+    ./doctor.sh                               # version table + self-check, changes nothing
 
-install.sh exit: 0 ok, 1 self-check failed, 2 bad option, 3 an install step failed. Without root: `./install.sh --no-apt` (Node 20+ and Chrome must already exist). Every dependency is pinned (requirements.txt, package-lock.json).
+Default install needs no root: Node 22 goes into `.node/` if system node is missing or < 20, Chrome for Testing into `.chrome/` if no Chrome is found. `./install.sh --system` (apt + system Chrome, sudo) is optional: before running it, ask the owner "This step installs system packages with sudo. OK?" and wait for a yes. install.sh exit: 0 ok, 1 self-check failed, 2 bad option, 3 an install step failed. Dependencies are pinned. Terms: TERMS.md.
 
 ## 3. Audit one site
 
@@ -37,7 +37,7 @@ It prints an `===== AUDIT SUMMARY =====` block (site, pages crawled, findings by
 | 0 | Complete report written. | Report it, with the disclaimers. |
 | 6 | PARTIAL report written (report.md first line says why: bot wall, timeout, page cap, robots.txt, a skipped stage). | Report it AS PARTIAL, in plain words, with every NOT MEASURED line. Never present it as complete. |
 | 2 | Bad arguments or URL. | Use `https://host/`. |
-| 3 | `PREFLIGHT FAILED` (package, Node or Chrome missing). | `./install.sh`, then `--check`. Tell the person install failed. |
+| 3 | Did not start: `PREFLIGHT FAILED` (package, Node or Chrome missing). | `./doctor.sh`, then `./install.sh`. Tell the person it did not start. |
 | 4 | `CRAWL FAILED`: no pages. | Read the printed log lines (DNS, TLS, firewall); retry once with `--csr` or slower pacing, then report "could not audit". |
 | 5 | `REPORT FAILED`: a report file was not built. | Read `run.log`; report the failure in plain words. |
 

@@ -22,3 +22,8 @@ __pycache__/
 # screenshots from runs; images under docs/ are kept
 *.png
 !docs/**/*.png
+
+# kit-local Node and Chrome for Testing (install.sh)
+.node/
+.node.tmp/
+.chrome/

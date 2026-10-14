@@ -60,10 +60,10 @@ Entry points:
 
 | Command | What it does |
 |---|---|
-| `./install.sh` | Installs apt packages, the Python venv, Node 22, the npm packages and a Chrome, then runs a self-check. `--no-apt` skips apt (no root), `--check` only runs the self-check. Exit 0 = all OK, 1 = a self-check item failed, 2 = bad arguments, 3 = an install step failed. It saves the Chrome it found to `$KIT_WORK/chrome-bin`. |
+| `./install.sh` | No root by default: the Python venv and npm packages; Node 22 into `$KIT_HOME/.node` when system node is missing or older than 20; Chrome for Testing into `$KIT_HOME/.chrome` when no Chrome is found; then a self-check. `--system` also installs apt packages and a system Chrome (needs sudo). `--check` (same as `./doctor.sh`) only prints the version table and self-check. Exit 0 = all OK, 1 = a self-check item failed, 2 = bad arguments, 3 = an install step failed. |
 | `./audit.sh <url> [--name N] [--csr] [--proxy URL]` | The one-command path for a bot. Section 10. |
 | `run-full-audit.sh` | The stage orchestrator described in this document. |
-| `run-queue.sh` | A batch spool queue: `add`, `work [N]`, `status`, `stop`, `requeue`. Several workers each take the oldest pending job. |
+| `run-queue.sh` | A batch spool queue: `add`, `work [N]`, `status`, `stop`, `requeue`. 1 worker by default, max 2 (`QUEUE_WORKERS_UNSAFE=1` lifts the max); each takes the oldest pending job. |
 | `publish-run.sh` | The only writer to `$REPORTS_DIR` for verified reports. It refuses an unverified or incomplete run (section 9). |
 
 ---

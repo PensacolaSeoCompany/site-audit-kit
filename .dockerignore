@@ -12,3 +12,6 @@ queue/done
 queue/failed
 queue/locks
 queue/heartbeat
+.node
+.node.tmp
+.chrome

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>About Example Bakery</title>
+<meta name="description" content="About page of the static two-page test site.">
+</head>
+<body>
+<main>
+<h1>About the bakery</h1>
+<p>The bakery opened in a small shop on a quiet street. Two bakers start work at four in the morning so
+the first loaves are ready when the doors open. The shop also sells rolls, buns and a few cakes at the
+weekend. Everything on this page is in the server HTML; the only script writes the current year.</p>
+<h2>Visit</h2>
+<p>The shop is open from seven in the morning until two in the afternoon, Monday to Saturday. Bring your
+own bag if you can. We take cards and cash.</p>
+<p><a href="/">Back to the home page</a></p>
+</main>
+<footer>&copy; <span id="y"></span> Example Bakery</footer>
+<script>document.getElementById('y').textContent = String(new Date().getFullYear());</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Example Bakery</title>
+<meta name="description" content="A static two-page test site with one tiny inline script.">
+</head>
+<body>
+<main>
+<h1>Example Bakery</h1>
+<p>This page is a static test page with one tiny inline script that only writes the year in the footer.
+All of the real text is in the HTML that the server sends, so the audit kit must read it as a normal
+server-rendered page and must never call it an empty shell until JavaScript runs.</p>
+<h2>Our bread</h2>
+<p>We bake sourdough, rye and white loaves every morning before seven. Each loaf uses flour from a local
+mill, water, salt and time. We do not add any sugar or fat to the plain loaves.</p>
+<p><a href="/about.html">About the bakery</a></p>
+</main>
+<footer>&copy; <span id="y"></span> Example Bakery</footer>
+<script>document.getElementById('y').textContent = String(new Date().getFullYear());</script>
+</body>
+</html>

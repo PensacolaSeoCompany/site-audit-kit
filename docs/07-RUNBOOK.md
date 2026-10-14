@@ -240,10 +240,10 @@ Usage lines:
    Flags: `CSR` (client-rendered; sets `CSR=1`), `PROXY` (bot-walled; needs `CRAWL_PROXY` in the env or `config.env`; the lane sets a Safari UA, `CRAWL_DELAY=3`, `CRAWL_CONCURRENCY=2` unless already set). A slug must be letters, digits, `.`, `_`, `-`; the URL must start with `http://` or `https://`. A new site during a batch is one more `add`.
 2. Start the workers as a supervised background task (they run in the foreground of that task):
 
-       bash run-queue.sh work            # 4 workers by default; "work N" or QUEUE_WORKERS to change
+       bash run-queue.sh work            # 1 worker by default; "work 2" or QUEUE_WORKERS=2 for two (max 2)
 
    Workers exit when `pending/` is empty. Add `--stay` to keep them waiting for new jobs; end them with `bash run-queue.sh stop`.
-   The default of 4 was measured on a 4-core, 15 GB machine (4 workers project to about 43% CPU). On a smaller machine set `QUEUE_WORKERS` to the core count or fewer. Raise it one at a time only while CPU idle stays above 30%; Lighthouse runs from different workers already overlap.
+   Default 1 worker, maximum 2: bots often run on shared machines, and each worker adds load to the audited sites and this machine. A higher N is clamped to 2 with a note unless `QUEUE_WORKERS_UNSAFE=1` is set (older measurement: 4 workers used about 43% CPU on a 4-core, 15 GB machine; Lighthouse runs from different workers overlap).
 3. Watch: `bash run-queue.sh status` (counts, each running slug with elapsed minutes, each worker's stage, `STALE` for a heartbeat older than 3 minutes).
 4. Each finished site still needs steps 4 to 6. Batch defaults: the render check uses the 2nd and 8th sitemap URLs.
 

@@ -9,7 +9,7 @@
 #   CASES_DIR    one folder per audit slug: run logs, evidence, site-audit.html (default: $KIT_WORK/cases)
 #   REPORTS_DIR  published reports, one folder per domain (default: $KIT_HOME/reports)
 #   PY           Python: $KIT_HOME/.venv/bin/python if present, else python3
-#   NODE         Node.js (default: node)
+#   NODE         Node.js (default: node; $KIT_HOME/.node/bin is put first on PATH when it exists)
 #   CHROME_BIN   Chrome/Chromium: env, else the path in $KIT_WORK/chrome-bin (written by install.sh),
 #                else the first of google-chrome, google-chrome-stable, chromium, chromium-browser
 #                found on PATH (empty when none is installed). Also exported as CHROME_PATH.
@@ -38,6 +38,10 @@ CRAWL_DIR="${CRAWL_DIR:-$KIT_WORK/crawl}"
 CASES_DIR="${CASES_DIR:-$KIT_WORK/cases}"
 REPORTS_DIR="${REPORTS_DIR:-$KIT_HOME/reports}"
 
+# the kit-local Node (install.sh puts it in $KIT_HOME/.node when the system node is missing or < 20)
+case ":$PATH:" in *":$KIT_HOME/.node/bin:"*) ;; *) [ -x "$KIT_HOME/.node/bin/node" ] && PATH="$KIT_HOME/.node/bin:$PATH" ;; esac
+export PATH
+
 if [ -z "${PY:-}" ]; then
   if [ -x "$KIT_HOME/.venv/bin/python" ]; then PY="$KIT_HOME/.venv/bin/python"; else PY="$(command -v python3 || echo python3)"; fi
 fi
@@ -48,6 +52,10 @@ if [ -z "${CHROME_BIN:-}" ]; then
   for _c in google-chrome google-chrome-stable chromium chromium-browser; do
     _p="$(command -v "$_c" 2>&1)" && [ -n "$_p" ] && { CHROME_BIN="$_p"; break; }
   done
+fi
+# last resort: the pinned Chrome for Testing that install.sh downloads into $KIT_HOME/.chrome
+if [ -z "${CHROME_BIN:-}" ]; then
+  for _p in "$KIT_HOME"/.chrome/chrome/linux-*/chrome-linux64/chrome; do [ -x "$_p" ] && { CHROME_BIN="$_p"; break; }; done
 fi
 CHROME_BIN="${CHROME_BIN:-}"
 # Lighthouse and puppeteer-style tools read CHROME_PATH

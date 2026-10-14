@@ -9,9 +9,11 @@ on a fresh Ubuntu or Debian machine with no human help. MIT licensed.
 You get a client-ready HTML report, the same report as Markdown and PDF, the findings as JSON, and an
 internal link map, in `reports/example.com/`.
 
+Read [TERMS.md](TERMS.md) before you run it: what the report is, what it is not, and who decides what to change.
+
 ## What it checks
 
-It crawls the site (up to 1,000 pages by default), then runs these stages. Each stage must report that it
+It crawls the site (up to 500 pages by default, 2 requests at a time, 1 s apart, robots.txt obeyed), then runs these stages. Each stage must report that it
 ran; a completion gate at the end lists any stage that did not.
 
 - **Full crawl**: status codes, redirects, canonicals, titles, headings, images, word counts, internal
@@ -61,13 +63,17 @@ list more findings than the JSON.
 ## Install
 
     git clone <this repo> site-audit-kit && cd site-audit-kit
-    ./install.sh             # apt packages (root or passwordless sudo), Python venv, Node 22, npm, Chrome
-    ./install.sh --no-apt    # no root: venv, npm and the self-check only
-    ./install.sh --check     # self-check only
+    ./install.sh             # default, no root: Python venv, npm packages; Node 22 into .node/ if system
+                             # node is missing or older than 20; Chrome for Testing into .chrome/ if no Chrome
+    ./install.sh --system    # optional: also apt packages + system Chrome (needs root or sudo)
+    ./doctor.sh              # version table and self-check only, changes nothing (= ./install.sh --check)
 
 It ends with `SELF-CHECK OK` (exit 0). Exit 1 = a self-check item failed, 2 = bad option, 3 = an
-install step failed. Supported: Ubuntu 22.04/24.04, Debian 12. Needs Python 3.10+, Node 20+, Chrome or
-Chromium.
+install step failed. Supported: Ubuntu 22.04/24.04, Debian 12. Needs Python 3.10+ (Node and Chrome are
+fetched into the kit folder when missing).
+
+Chrome is not pinned: the kit uses the system Chrome (or `CHROME_BIN`) if one is present, else it
+downloads a pinned Chrome for Testing build into `.chrome/` inside the kit. `./doctor.sh` shows which one is used.
 
 ## Run
 
@@ -90,9 +96,10 @@ pipeline output goes to `reports/<domain>/run.log`; the screen shows a summary:
       - pipeline step "perf" did not complete
     Unverified: no person or verify agent checked these findings.
 
-Exit codes: 0 reports written (read the NOT MEASURED list: a run can be partial and still exit 0),
-2 bad arguments, 3 preflight failed (run `./install.sh`), 4 crawl failed (no pages), 5 a report file
-was not built.
+Exit codes: 0 complete report written, 2 bad arguments, 3 did not start (preflight failed: run
+`./doctor.sh`, then `./install.sh`), 4 crawl failed (no pages), 5 a report file was not built,
+6 PARTIAL report written (something was blocked, skipped or timed out; the reasons are on the first line
+of report.md).
 
 The stage orchestrator can also be run directly:
 
@@ -102,14 +109,15 @@ The stage orchestrator can also be run directly:
 
     ./run-queue.sh add "slug|https://example.com/|Example Co|" "slug2|https://example.org/|Example Org|CSR"
     ./run-queue.sh add --file sites.txt      # one "slug|url|name|flags" line per site
-    ./run-queue.sh work                      # 4 workers; "work N" to change; --stay to wait for new jobs
+    ./run-queue.sh work                      # 1 worker; "work 2" for two (max 2); --stay to wait for new jobs
     ./run-queue.sh status                    # counts, running jobs, stale heartbeats
     ./run-queue.sh stop                      # each worker finishes its current job, then exits
     ./run-queue.sh requeue <job file>        # put a dead worker's job back in pending
 
 The same site never runs twice at once. Finished jobs go to `queue/done/` or `queue/failed/` with the
 return code and the run log path. Before each job a disk gate checks free space (`AUDIT_MIN_FREE_GB`);
-below it the job waits and the heartbeat says `WAITING-DISK`. The queue lives in `queue/` (`QUEUE_DIR` to move it); `QUEUE_WORKERS` sets the default worker count.
+below it the job waits and the heartbeat says `WAITING-DISK`. The queue lives in `queue/` (`QUEUE_DIR` to move it); `QUEUE_WORKERS` sets the worker count: default 1, at most 2 on a shared machine (higher only with
+`QUEUE_WORKERS_UNSAFE=1`, which loads the audited sites and this machine harder).
 
 Each queue job runs `run-full-audit.sh`, not `audit.sh`: the report is built in `work/cases/<slug>/`
 (`site-audit.html`, `linkmap.html`, `run-<UTC>.log`) and nothing is copied to `reports/` until you verify it
@@ -128,8 +136,8 @@ the environment win.
 | `REPORTS_DIR` | `$KIT_HOME/reports` | Where finished reports go. |
 | `CHROME_BIN` | first of google-chrome, google-chrome-stable, chromium, chromium-browser | Chrome to use. |
 | `CRAWL_PROXY` | none | Proxy for requests to the audited site only. |
-| `CRAWL_UA` | per tool | User agent for requests to the audited site. |
-| `CRAWL_DELAY` / `CRAWL_CONCURRENCY` | 0 / 6 (3 / 2 with a proxy) | Crawl pacing. |
+| `CRAWL_UA` | `GrokBot-SiteAudit (+https://github.com/PensacolaSeoCompany/site-audit-kit)` | User agent for requests to the audited site. |
+| `CRAWL_DELAY` / `CRAWL_CONCURRENCY` | 1 / 2 | Crawl pacing (seconds between requests / requests at a time). |
 | `AUDIT_TIMEOUT` | 1800 | Seconds cap on one `./audit.sh` run. |
 | `CSR` | 0 | `1` = client-rendered site, for `run-full-audit.sh` (`./audit.sh --csr` sets it). |
 | `SKIP_PERF` | 0 | `1` = skip Lighthouse (the report says page speed was not measured). |
@@ -146,7 +154,7 @@ the environment win.
 |---|---|
 | `Chrome not found` / preflight fails on Chrome | Run `./install.sh`, or set `CHROME_BIN=/path/to/chrome`. |
 | Chrome crashes at once in Docker or as root | Every tool already starts Chrome with `--no-sandbox` and `--disable-dev-shm-usage`. If it still dies, give the container more shared memory (`--shm-size=1g`) and check `"$CHROME_BIN" --headless=new --dump-dom https://example.com`. |
-| `PREFLIGHT FAILED` (exit 3) | A Python or npm package, Node 20+ or Chrome is missing. Run `./install.sh`, then `./install.sh --check`. |
+| `PREFLIGHT FAILED` (exit 3) | A Python or npm package, Node 20+ or Chrome is missing. Run `./install.sh`, then `./doctor.sh`. |
 | `CRAWL FAILED` (exit 4) | No pages came back. Read the log lines it prints: DNS, TLS, a firewall, or a thin crawl that needs `--csr`. |
 | Pages answer 403 / 429 / a bot challenge | The site's firewall refused us. Those pages are listed under "What we could not check", never as broken. Try `CRAWL_DELAY=3 CRAWL_CONCURRENCY=1`, a browser `CRAWL_UA`, or a `CRAWL_PROXY` for the audited site. |
 | Crawl finds 1 to 5 pages with almost no words | Probably a client-rendered (React/Vue/etc.) site. Re-run with `--csr`. A real 6-page site is a finding, not a failure. |
@@ -157,6 +165,8 @@ the environment win.
 More: `docs/KNOWN-PITFALLS.md` (every failure we hit, with symptom, cause and fix) and `docs/07-RUNBOOK.md`.
 
 ## Safety & limits
+
+The disclaimers, consent rule and responsibility terms are in [TERMS.md](TERMS.md).
 
 **Read-only.** The kit only sends GET and HEAD requests. It never logs in, submits a form, posts data or changes anything on the audited site.
 

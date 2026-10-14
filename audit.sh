@@ -72,7 +72,10 @@ fi
 export PATH="$KIT_HOME/node_modules/.bin:$PATH"   # the kit's own lighthouse first
 [ -n "${CHROME_BIN:-}" ] && export CHROME_BIN CHROME_PATH="$CHROME_BIN"
 OUT="$REPORTS_DIR/$DOMAIN"; CASE="$CASES_DIR/$SLUG"; J="$CRAWL_DIR/$SLUG-full.json"
-mkdir -p "$OUT"
+# A folder we cannot write is a setup problem, not a site problem: say so and stop (exit 3).
+for d in "$OUT" "$KIT_WORK" "$CRAWL_DIR" "$CASES_DIR"; do
+  mkdir -p "$d" 2>"${SINK:-/dev/stderr}" && [ -w "$d" ] || { echo "NOT STARTED: cannot write the folder $d (check its owner and permissions; the kit never changes them)."; exit 3; }
+done
 LOG="$OUT/run.log"; SINK="$KIT_WORK/.audit-sink"
 # This tool's own outputs from an earlier run are replaced, never mixed with this run's.
 rm -f "$OUT"/{site-audit.html,report.md,report.pdf,findings.json,linkmap.html}

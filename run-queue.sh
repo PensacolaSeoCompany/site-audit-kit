@@ -29,7 +29,8 @@
 #   - run logs: $CASES_DIR/<slug>/run-<UTC>.log, never overwritten; run1.log -> newest (run-lane.sh).
 #   - stdin of every child: $EMPTY_STDIN (an empty file, default $KIT_WORK/.empty-stdin).
 #
-# DEFAULT WORKERS = 4 (override: "work N" or QUEUE_WORKERS). Basis, measured 2026-10-14 with sar on one box:
+# DEFAULT WORKERS = 1, MAX 2 (v1.0.0, owner: bots often run on shared machines). "work N" or QUEUE_WORKERS
+# above 2 is clamped to 2 unless QUEUE_WORKERS_UNSAFE=1. Earlier basis for 4, measured 2026-10-14 with sar on one box:
 #   box = 4 cores / 15 GB RAM. One lane: CPU 91-92% idle, load 0.17-0.32 (19:30-19:40). Three lanes
 #   (20:20-21:00): CPU 61-79% idle (avg 68%), load avg 1.5-1.7, RAM used 16-20% (>= 12 GB available).
 #   So one lane costs about 11% CPU and 0.5 load; 4 workers project to about 43% CPU and load ~2.2 on
@@ -38,14 +39,15 @@
 #   go no higher by default. Start at 4; raise one at a time only while sar idle stays above 30%.
 #   On a smaller machine, set QUEUE_WORKERS to the core count or fewer.
 #
-# Env: QUEUE_DIR, QUEUE_WORKERS, QUEUE_POLL_S (5), QUEUE_HEARTBEAT_S (30), QUEUE_DISK_SLEEP_S (60);
+# Env: QUEUE_DIR, QUEUE_WORKERS (default 1, max 2), QUEUE_WORKERS_UNSAFE=1 (lift the max), QUEUE_POLL_S (5), QUEUE_HEARTBEAT_S (30), QUEUE_DISK_SLEEP_S (60);
 # tests also use AUDIT_CASE_ROOT and QUEUE_AUDIT_CMD (fake audit).
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=run-lane.sh
 . "$HERE/run-lane.sh"        # run_site, disk_ok, free_gb, CASE_ROOT, QDIR, EMPTY, AUDIT_MIN_FREE_GB
 export LC_ALL=C
-DEFAULT_WORKERS=4
+DEFAULT_WORKERS=1
+MAX_WORKERS=2
 POLL="${QUEUE_POLL_S:-5}"
 HB_S="${QUEUE_HEARTBEAT_S:-30}"
 DISK_SLEEP="${QUEUE_DISK_SLEEP_S:-60}"
@@ -160,6 +162,10 @@ cmd_work() {
   local n="${QUEUE_WORKERS:-$DEFAULT_WORKERS}" stay=0 a i pids=() live
   for a in "$@"; do case "$a" in --stay) stay=1 ;; *[!0-9]*|'') echo "bad arg $a"; return 2 ;; *) n="$a" ;; esac; done
   [ "$n" -ge 1 ] || { echo "N must be >= 1"; return 2; }
+  if [ "$n" -gt "$MAX_WORKERS" ] && [ "${QUEUE_WORKERS_UNSAFE:-0}" != 1 ]; then
+    echo "NOTE: $n workers asked; using $MAX_WORKERS. More parallel audits load the audited sites and this (possibly shared) machine harder. Set QUEUE_WORKERS_UNSAFE=1 to allow more."
+    n="$MAX_WORKERS"
+  fi
   live=$(live_workers)
   [ -n "$live" ] && echo "NOTE: workers already running (total will be higher than $n):" && echo "$live"
   for i in $(seq 1 "$n"); do

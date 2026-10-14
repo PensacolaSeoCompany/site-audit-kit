@@ -19,3 +19,7 @@ One file per audit job. A job file's first line is `slug|url|Business Name|flags
 Commands: `bash run-queue.sh add|work|status|stop|requeue` (usage: run the script with no arguments).
 Do not delete job files by hand while workers run; moving job files between folders is the design.
 Run logs live in `$CASES_DIR/<slug>/run-<UTC>.log` (default `work/cases/<slug>/`).
+
+Workers: `./run-queue.sh work` starts 1 worker by default (`QUEUE_WORKERS` or `work N` to change). The
+maximum is 2, because bots often run on shared machines and every worker adds load to the audited sites
+and to this machine. A higher number is clamped to 2 with a note, unless `QUEUE_WORKERS_UNSAFE=1` is set.

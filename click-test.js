@@ -40,6 +40,14 @@ function requireKit(name) {   // $KIT_HOME/node_modules first, then the normal s
 const puppeteer = requireKit('puppeteer-core');
 function findChrome() {
   if (process.env.CHROME_BIN) return process.env.CHROME_BIN;
+  // the kit's own Chrome: work/chrome-bin (written by install.sh), then a local Chrome for Testing in .chrome/
+  // (2026-10-14: as a non-root user with no system Chrome this tool said "no Chrome found" while install.sh had one)
+  const KIT_HOME = path.resolve(__dirname), KIT_WORK = process.env.KIT_WORK || path.join(KIT_HOME, 'work');
+  try { const f = fs.readFileSync(path.join(KIT_WORK, 'chrome-bin'), 'utf8').trim(); if (f && fs.existsSync(f)) return f; } catch (e) {}
+  try {
+    const base = path.join(KIT_HOME, '.chrome', 'chrome');
+    for (const d of fs.readdirSync(base)) { const f = path.join(base, d, 'chrome-linux64', 'chrome'); if (fs.existsSync(f)) return f; }
+  } catch (e) {}
   for (const name of ['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser']) {
     for (const dir of (process.env.PATH || '').split(path.delimiter)) {
       const f = path.join(dir || '.', name);

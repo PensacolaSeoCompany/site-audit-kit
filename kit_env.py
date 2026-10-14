@@ -21,6 +21,11 @@ CASES_DIR = KIT_WORK / "cases"
 REPORTS_DIR = KIT_HOME / "reports"
 NODE_MODULES = KIT_HOME / "node_modules"
 
+# kit-local Node (install.sh puts it in .node/ when the system node is missing or < 20): first on PATH
+_LOCAL_NODE_BIN = KIT_HOME / ".node" / "bin"
+if (_LOCAL_NODE_BIN / "node").exists() and str(_LOCAL_NODE_BIN) not in os.environ.get("PATH", "").split(os.pathsep):
+    os.environ["PATH"] = str(_LOCAL_NODE_BIN) + os.pathsep + os.environ.get("PATH", "")
+
 CHROME_NAMES = ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser")
 
 
@@ -29,10 +34,20 @@ def chrome_bin(required=False):
     env = os.environ.get("CHROME_BIN")
     if env:
         return env
+    rec = KIT_WORK / "chrome-bin"   # written by install.sh
+    try:
+        first = rec.read_text().strip().splitlines()[0] if rec.is_file() else ""
+        if first and os.access(first, os.X_OK):
+            return first
+    except (OSError, IndexError):
+        pass
     for name in CHROME_NAMES:
         p = shutil.which(name)
         if p:
             return p
+    for p in sorted(KIT_HOME.glob(".chrome/chrome/linux-*/chrome-linux64/chrome")):
+        if os.access(p, os.X_OK):
+            return str(p)
     if required:
         raise SystemExit("FATAL: no Chrome found. Install google-chrome or chromium, or set CHROME_BIN.")
     return None

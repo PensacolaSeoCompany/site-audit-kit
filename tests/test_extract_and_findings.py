@@ -328,6 +328,134 @@ class RenderCheckStatic(unittest.TestCase):
         self.assertNotEqual(r.returncode, 2, r.stdout[-1500:])
 
 
+# ------------------------------------------------------------------ static fixture sites, end to end
+FIXTURES = os.path.join(HERE, 'fixtures')
+
+def _serve_dir(path):
+    import functools, http.server as hs
+    class Q(hs.SimpleHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+    srv = hs.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Q, directory=path))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv
+
+def _clean_env():
+    env = {k: v for k, v in os.environ.items()
+           if k not in ('CRAWL_PROXY', 'CRAWL_CURL', 'CRAWL_CURL_SSH', 'CRAWL_DELAY',
+                        'http_proxy', 'https_proxy', 'HTTP_PROXY', 'HTTPS_PROXY')}
+    env['NO_PROXY'] = env['no_proxy'] = '127.0.0.1,localhost'
+    return env
+
+
+class StaticFixtureNoShell(unittest.TestCase):
+    """Owner item 4 (2026-10-14): example.com, one plain static page, came back "empty shells until
+    JavaScript runs" and the run was marked PARTIAL. End to end on tiny static fixture sites
+    (tests/fixtures/static-one-page, tests/fixtures/static-two-page with a tiny inline script):
+    full-extract.py crawls, render-check.py renders every crawled page, checks-to-findings.py reads
+    both. There must be no CSR verdict, no shell finding and no "client-rendered" not-measured list
+    (that list is what makes audit-lib/summary.py mark the run PARTIAL)."""
+
+    def _run(self, name, n_pages):
+        srv = _serve_dir(os.path.join(FIXTURES, name))
+        base = f'http://127.0.0.1:{srv.server_address[1]}'
+        try:
+            env = _clean_env()
+            out = os.path.join(OUT, f'fixture-{name}.json')
+            r = subprocess.run([PY, os.path.join(ROOT, 'full-extract.py'), base + '/', '--out', out],
+                               capture_output=True, text=True, env=env, stdin=subprocess.DEVNULL, timeout=240)
+            self.assertEqual(r.returncode, 0, r.stdout[-2000:] + r.stderr[-2000:])
+            pages = [p for p in json.load(open(out))['pages']
+                     if p.get('status') == 200 and not p.get('non_html')]
+            self.assertEqual(len(pages), n_pages, [p.get('url') for p in pages])
+            d = os.path.join(OUT, f'render-{name}'); os.makedirs(d, exist_ok=True)
+            rc = subprocess.run([PY, os.path.join(ROOT, 'render-check.py'), *[p['url'] for p in pages]],
+                                capture_output=True, text=True, env=env, cwd=d, stdin=subprocess.DEVNULL,
+                                timeout=400)
+        finally:
+            srv.shutdown(); srv.server_close()
+        self.assertEqual(rc.stdout.count('CONTENT:'), n_pages, rc.stdout[-2000:] + rc.stderr[-1500:])
+        self.assertNotIn('CONTENT: CSR', rc.stdout, rc.stdout[-2000:])
+        self.assertNotEqual(rc.returncode, 2, rc.stdout[-2000:])
+        f, _ = c2f(f'fx-{name}', {'render.log': rc.stdout}, crawl_pages=pages, seed=base + '/',
+                   site=base.split('://', 1)[1])
+        titles = [x['title'] for x in f['findings']]
+        self.assertEqual([t for t in titles if re.search(r'empty shells|until JavaScript', t)], [], titles)
+        op = json.load(open(os.path.join(OUT, 'c2f', f'fx-{name}', 'reports', f'fx-{name}-operator-findings.json')))
+        self.assertEqual(op.get('not_measured_csr_checks'), [], op)
+
+    def test_static_one_page_no_script(self):
+        self._run('static-one-page', 1)
+
+    def test_static_two_pages_tiny_inline_script(self):
+        self._run('static-two-page', 2)
+
+
+class CsrNeedsRealEvidence(unittest.TestCase):
+    """The two hard rules (owner item 4, 2026-10-14): no CSR finding when the raw HTML already has
+    the H1 and >= 100 words of main text, and none when fewer than 3 real pages were crawled.
+    Both logs below carry scripts and JavaScript that adds hundreds of words, so only these rules
+    can stop the finding."""
+
+    def _shell(self, f):
+        return [x for x in f['findings'] if 'empty shells' in x['title']]
+
+    def _op(self, case):
+        return json.load(open(os.path.join(OUT, 'c2f', case, 'reports', f'{case}-operator-findings.json')))
+
+    @unittest.expectedFailure   # rule not in code yet (owner item 4); remove this line when it is
+    def test_raw_h1_and_100_words_is_not_csr(self):
+        paths = ('/', '/a', '/b')
+        pages = [row(p, word_count=140, html_tag_inventory={'h1': 1, 'p': 3, 'script': 2}) for p in paths]
+        log = "=== render check ===" + ''.join(
+            _render_block(H(p), 'CSR', 30, 140, 470, scripts=2).replace(' · scripts 2', ' · scripts 2 · h1 1/1 · main words 140')
+            for p in paths)
+        f, _ = c2f('rawh1', {'render.log': log}, crawl_pages=pages)
+        self.assertEqual(self._shell(f), [], [x['title'] for x in f['findings']])
+        self.assertEqual(self._op('rawh1').get('not_measured_csr_checks'), [])
+
+    def test_fewer_than_three_pages_is_not_csr(self):
+        paths = ('/', '/a')
+        pages = [row(p, word_count=12, title='', html_tag_inventory={'div': 1, 'script': 4}) for p in paths]
+        for p in pages:
+            p['headings'] = {}
+            p['heading_counts'] = {'h1': 0}
+        log = "=== render check ===" + ''.join(_render_block(H(p), 'CSR', 3, 12, 420, scripts=4) for p in paths)
+        f, _ = c2f('twopages', {'render.log': log}, crawl_pages=pages)
+        self.assertEqual(self._shell(f), [], [x['title'] for x in f['findings']])
+        self.assertEqual(self._op('twopages').get('not_measured_csr_checks'), [])
+
+    @unittest.expectedFailure   # rule not in code yet (owner item 4); remove this line when it is
+    def test_render_check_raw_h1_and_100_words_is_not_csr(self):
+        """render-check.py itself: raw page has an H1 and ~120 words, a script adds 300 more."""
+        import http.server as hs
+        main = ('<main><h1>Example Domain</h1><p>' + ' '.join(['plain server text for this test page'] * 20)
+                + '</p></main>')
+        js = ("<script>var p=document.createElement('p');p.textContent=Array(60).fill('added by script now').join(' ');"
+              "document.body.appendChild(p);</script>")
+        class Hd(hs.BaseHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+            def do_GET(self):
+                b = f'<!doctype html><html><head><title>T</title></head><body>{main}{js}</body></html>'.encode()
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
+                self.send_header('Content-Length', str(len(b)))
+                self.end_headers()
+                self.wfile.write(b)
+        srv = hs.ThreadingHTTPServer(('127.0.0.1', 0), Hd)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        try:
+            d = os.path.join(OUT, 'render-rawh1'); os.makedirs(d, exist_ok=True)
+            r = subprocess.run([PY, os.path.join(ROOT, 'render-check.py'), f'http://127.0.0.1:{srv.server_address[1]}/'],
+                               capture_output=True, text=True, env=_clean_env(), cwd=d, stdin=subprocess.DEVNULL,
+                               timeout=240)
+        finally:
+            srv.shutdown(); srv.server_close()
+        self.assertIn('CONTENT:', r.stdout, r.stdout[-1500:] + r.stderr[-1500:])
+        self.assertNotIn('CONTENT: CSR', r.stdout, r.stdout[-1500:])
+
+
 # ------------------------------------------------------------------ audit-checks check 6 (www prefix)
 class WwwPrefix(unittest.TestCase):
     """Engineering review 2026-10-14: check 6 compared hosts with lstrip('w.'), which strips the
@@ -400,7 +528,7 @@ class LocalLeak(unittest.TestCase):
 
 
 # ------------------------------------------------------------------ checks-to-findings
-def c2f(case, files, crawl_pages=None, discovery=None, site=None):
+def c2f(case, files, crawl_pages=None, discovery=None, site=None, seed=None):
     adir = os.path.join(OUT, 'c2f', case, 'audit')
     rdir = os.path.join(OUT, 'c2f', case, 'reports')
     os.makedirs(adir, exist_ok=True); os.makedirs(rdir, exist_ok=True)
@@ -409,7 +537,7 @@ def c2f(case, files, crawl_pages=None, discovery=None, site=None):
             f.write(files.get(name, ''))
     site = site or f'127.0.0.1:{PORT}'
     with open(os.path.join(rdir, f'{case}-full.json'), 'w') as f:
-        json.dump({'site': site, 'seed': H('/') if site.startswith('127.') else f'https://{site}',
+        json.dump({'site': site, 'seed': seed or (H('/') if site.startswith('127.') else f'https://{site}'),
                    'pages': crawl_pages or []}, f)
     if discovery is not None:
         with open(os.path.join(rdir, f'{case}-discovery.json'), 'w') as f:

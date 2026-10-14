@@ -157,6 +157,19 @@ def _csr_evidence(log):
             return True
     return False
 _csr_blind = bool(re.search(r"CONTENT:\s+CSR", _render_log)) and not _render_poisoned and _csr_evidence(_render_log)
+# Owner rule (2026-10-14, example.com came back PARTIAL as "client-rendered"): a site with fewer than
+# 3 real pages, or whose pages carry no <script> at all, is never treated as client-rendered. Nothing
+# can be "blank until JavaScript runs" on a page that has no JavaScript.
+try:
+    _cz3 = json.load(open(os.path.join(rdir, f"{slug}-full.json")))
+    _rows3 = [_p for _p in (_cz3.get("pages") or [])
+              if _p.get("status") == 200 and "html" in str(_p.get("content_type", "")).lower()]
+    _real_pages = len(_rows3)
+    _site_has_scripts = any(int((_p.get("html_tag_inventory") or {}).get("script", 0) or 0) > 0 for _p in _rows3)
+except Exception:
+    _real_pages, _site_has_scripts = 99, True
+if _real_pages < 3 or not _site_has_scripts:
+    _csr_blind = False
 
 # --- DATA THE CRAWL CAPTURED BUT NO STAGE REPORTED (DE-04 / SYNTHESIS D7, 2026-10-14) ------------
 # grep on 2026-10-14: no stage read the X-Robots-Tag header or the crawl's missing_title count.
@@ -1850,7 +1863,7 @@ _gated = re.findall(r"VISUAL:\s+GATED\s+\(no-JS paint covers (\d+)%", read("rend
 # throttled, the "no-JS paint" it measured is a WAF interstitial, not the site — the finding then
 # tells the client "100% of your page is blank" about a page that renders perfectly
 # (a restoration-company site, 2026-08-05, Sucuri rate-limit "You are being redirected...").
-if _render_poisoned:
+if _render_poisoned or _real_pages < 3 or not _site_has_scripts:
     _gated = []
 if _gated:
     _pct_g = _gated[0]

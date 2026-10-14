@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke test for the one-command layer: install self-check, then ./audit.sh on a local synthetic site
+# Smoke test for the one-command layer: ./install.sh twice (fresh, then a fast no-op re-run), ./doctor.sh, then ./audit.sh on a local synthetic site
 # (tests/fixtures/smoke-site, served by tests/fixtures/smoke_server.py on loopback addresses).
 #   A  127.0.0.1  plain site. About links to /history-missing.html, which does not exist (the planted 404).
 #   B  127.0.0.2  robots.txt disallows /members.html: it must be listed as not checked, never as broken.
@@ -7,6 +7,7 @@
 #   D  127.0.0.4  nothing listens: exit 4, and report.md still says PARTIAL on its first line.
 #
 #   bash tests/test_install_audit.sh            (inside the test container, or after ./install.sh)
+#   SKIP_INSTALL=1 bash tests/test_install_audit.sh          (already installed: doctor + cases only)
 #   SKIP_INSTALL_CHECK=1 bash tests/test_install_audit.sh
 # Env: AUDIT_TIMEOUT (default 900 here). Exit 0 = every assertion passed.
 set -u
@@ -49,9 +50,36 @@ for line in md.splitlines():
     if re.search(r"\b404\b|broken|not there", low + " " + sec): where.add("broken")
 print(" ".join(sorted(where)))'
 
+# Install steps. SKIP_INSTALL=1 skips steps 1-2 (an already installed kit); SKIP_INSTALL_CHECK=1 skips all three.
+# Chrome must come from $KIT_HOME/.chrome when no Chrome is on PATH (the test container) or KIT_LOCAL_CHROME=1.
 if [ "${SKIP_INSTALL_CHECK:-0}" != 1 ]; then
-  echo "== install.sh --check"
-  bash "$KIT_HOME/install.sh" --check || { echo "FAIL: install self-check"; exit 1; }
+  WANT_LOCAL=0
+  if [ "${KIT_LOCAL_CHROME:-0}" = 1 ] || { [ -z "${CHROME_BIN:-}" ] && ! command -v google-chrome google-chrome-stable chromium chromium-browser >"$TOUT/which.out" 2>&1; }; then WANT_LOCAL=1; fi
+  if [ "${SKIP_INSTALL:-0}" != 1 ]; then
+    echo "== step 1: ./install.sh (fresh)"
+    bash "$KIT_HOME/install.sh" > "$TOUT/install-1.out" 2>&1; RC=$?
+    tail -25 "$TOUT/install-1.out"
+    check "install 1: exit 0 (got $RC)"            '[ "$RC" -eq 0 ]'
+    check "install 1: SELF-CHECK OK"               'grep -q "^SELF-CHECK OK" "$TOUT/install-1.out"'
+    check "install 1: never calls sudo or apt"     '! grep -qE "^(Reading package lists|NOTICE: --system)" "$TOUT/install-1.out"'
+    if [ "$WANT_LOCAL" = 1 ]; then
+      check "install 1: Chrome from \$KIT_HOME/.chrome" 'case "$(head -1 "${KIT_WORK:-$KIT_HOME/work}/chrome-bin")" in "$KIT_HOME"/.chrome/*) true ;; *) false ;; esac'
+    fi
+    echo "== step 2: ./install.sh again (must skip downloads, < 30 s)"
+    T0=$(date +%s)
+    bash "$KIT_HOME/install.sh" > "$TOUT/install-2.out" 2>&1; RC=$?
+    DT=$(( $(date +%s) - T0 ))
+    grep -E "skip|using system" "$TOUT/install-2.out"
+    echo "  (second run took ${DT} s)"
+    check "install 2: exit 0 (got $RC)"            '[ "$RC" -eq 0 ]'
+    check "install 2: already-present skips"       'grep -q "already present" "$TOUT/install-2.out" && ! grep -qE "^downloading|^added [0-9]+ package|^no Chrome on PATH" "$TOUT/install-2.out"'
+    check "install 2: took < 30 s (${DT} s)"       '[ "$DT" -lt 30 ]'
+  fi
+  echo "== step 3: ./doctor.sh"
+  bash "$KIT_HOME/doctor.sh" > "$TOUT/doctor.out" 2>&1; RC=$?
+  cat "$TOUT/doctor.out"
+  check "doctor: exit 0 (got $RC)"                 '[ "$RC" -eq 0 ]'
+  [ "$RC" -eq 0 ] || { echo "FAIL: doctor self-check; not running the audit cases"; exit 1; }
 fi
 
 echo "== case A: plain site (planted 404)"
