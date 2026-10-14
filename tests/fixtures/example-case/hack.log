@@ -1,0 +1,9 @@
+crawled pages: 6
+sitemap URLs:  0
+in sitemap but NOT reached by crawl (orphans/injections): 0
+   (orphan test = zero internal links pointing at the page, from the crawl's link graph)
+
+   no spam-signature paths in sitemaps
+
+NOTE: orphaned injections may NOT appear in the sitemap either — also run a
+`site:<domain>` index-count check and compare to crawl count. A big gap = investigate.

@@ -1,0 +1,94 @@
+=== standing audit checks — site host: example.com ===
+
+(note: homepage is unreachable or too slow to re-probe from this host — live re-probes are disabled; checks that would re-fetch fall back to the crawl data, which the crawler captured via its own transport. Live-only signals — canonical-target HTTP status, apex/www duplication — are reported as UNKNOWN this run rather than probed.)
+
+1. CANONICAL TARGET DOMAIN
+   ok — all canonicals stay on-domain
+   note: 8 page(s) have NO canonical tag
+
+2b. CANONICAL → REDIRECT (canonical URL is not a 200)
+   UNKNOWN — host unreachable from here; canonical HTTP status not probed this run
+
+3. STRUCTURED DATA
+   🚩 8 page(s) crawled, ZERO with JSON-LD. No LocalBusiness/Service schema anywhere.
+
+4. SITE SIZE
+   6 unique 200-status pages crawled
+
+5. PLACEHOLDER / DEMO CONTENT
+   ok — no placeholder markers in titles/headings
+
+6. RESOURCE/LINK HOST MISMATCH (www vs non-www → forced 301s)
+   ok — every same-site reference uses the canonical host
+
+7. CRAWLABLE AUTH / ACCOUNT ROUTES
+   ok — no auth/account routes crawlable
+
+8. PLACEHOLDER / MASS-DUPLICATE TITLES
+   ok — no placeholder or mass-duplicate titles
+
+9. CONTACT INTEGRITY (click-to-call / email) — live sample of 5 page(s)
+   (no tel: links found in the sample)
+   DISPLAYED numbers (visible text, form placeholders excluded): 1 distinct, area codes ['555']
+
+10. MALFORMED HREFS (valid HTML, navigates nowhere) — live sample of 5 page(s)
+   ok — no malformed hrefs in the sample
+
+11. PLACEHOLDER CONTENT IN URL SLUGS / BODY
+   ok — no placeholder slugs
+
+12. HOST DUPLICATION (apex vs www both live)
+   UNKNOWN — host unreachable from here; apex/www duplication not probed this run
+
+13. SITEMAP INTEGRITY
+   ⚠️ NO robots.txt at all (returns an error) — crawlers get no sitemap
+      declaration and no crawl rules. Publish one with a Sitemap: line.
+   ⚠️ UNKNOWN — the sitemap could not be fetched from here (None on 2 probe(s), after retries). This is a TRANSPORT result, not a finding: whether a sitemap exists cannot be judged from this run. (Operator: re-probe when the host is idle, or via the a second crawl host / residential proxy. HTTP 508 = the host's own resource cap.)
+
+14. THIN / MASS-DUPLICATE URL PREFIXES (index bloat)
+   (counting 8 URLs from the crawl)
+   ok — no single prefix dominates with thin pages
+
+15. INTERNAL LINKS POINTING AT REDIRECTS
+   ok — no internal links point at redirects
+
+16. STRUCTURED-DATA CONSISTENCY (homepage)
+   ⚠️ homepage fetch/parse failed: <urlopen error [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000)>
+
+17. NOINDEX INVENTORY
+   ok — no crawled 200-page is noindexed
+
+18. PRE-CONSENT TRACKING EXPOSURE
+   ok — no ad/analytics tracker signatures in the page HTML (5 live pages checked)
+
+20. BRAND TRANSITION / PREVIOUS-DOMAIN EQUITY
+   ok — no brand-transition language on the homepage and no external domain redirecting into this site
+
+19. LANGUAGE VARIANTS / HREFLANG
+   ok — no language-variant sections detected in the crawl
+
+21. IDENTICAL-CONTENT PAGE SETS
+   ok — no sets of 3+ pages with identical size and headline structure
+
+22. RESIDUE SLUGS / SLUG-CONTENT MISMATCH
+   ok — slugs match their content
+
+23. LEAD CAPTURE
+   (organization/app business model — lead-capture checks assume a local/commerce business; skipped)
+
+25. VISUAL CONTENT
+   ok — 1 image(s) across the site
+
+26. SECURITY HEADERS (homepage)
+   (header probe failed: <urlopen error [SSL: WRONG_VERSION_NUMBE)
+
+27. END-OF-LIFE SERVER SOFTWARE (homepage headers)
+   (EOL probe failed: <urlopen error [SSL: WRONG_VERSION_NUMBE)
+
+28. SOFT-404 BEHAVIOUR (missing-page handling)
+   ⚠️ UNKNOWN — could not measure (3 probe(s) failed in transport); no soft-404 conclusion drawn
+
+24. STORE INVENTORY (ecommerce only)
+   (not an ecommerce platform — skipped)
+
+=== no critical canonical flags ===

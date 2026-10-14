@@ -1,0 +1,16 @@
+# Test image: a fresh Ubuntu 24.04 with the kit installed by install.sh.
+#   docker build -f Dockerfile.test -t site-audit-kit-test .
+#   docker run --rm --shm-size=1g site-audit-kit-test                       (runs tests/test_install_audit.sh)
+#   docker run --rm --shm-size=1g site-audit-kit-test bash -c "./audit.sh https://example.com; python3 -m unittest discover -s tests -p 'test_*.py'"
+# Chrome runs as root here, so every Chrome launch in the kit must pass --no-sandbox.
+FROM ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8
+WORKDIR /opt/site-audit-kit
+# dependency files first, so the slow install layer is cached across code changes
+COPY install.sh requirements.txt package.json package-lock.json ./
+RUN bash install.sh \
+ && rm -r -f /var/lib/apt/lists/* /root/.cache/pip /root/.npm
+# then the kit itself (.dockerignore keeps a host's .venv, node_modules, work and reports out)
+COPY . .
+ENV PATH=/opt/site-audit-kit/.venv/bin:/opt/site-audit-kit/node_modules/.bin:$PATH
+CMD ["bash", "tests/test_install_audit.sh"]

@@ -1,0 +1,11 @@
+{
+  "_doc": "Report rules that publish-run.sh enforces (audit.sh reports them as warnings). page_forbidden: refused anywhere in the page. finding_forbidden: refused only in finding text (titles, walk-through steps, detail), so a page table that shows a title's length is fine. Case-insensitive Python regexes. Add a test in tests/test_publish_gate.py for every new rule.",
+  "page_forbidden": [
+    {"id": "consent-finding", "since": "2026-09", "why": "Policy: a pre-consent / CIPA tracker finding is a legal opinion, not an SEO finding; it never appears in a published page.",
+     "re": "before visitors can consent|pre-consent|\\bCIPA\\b|consent banner actually blocks"}
+  ],
+  "finding_forbidden": [
+    {"id": "title-meta-length", "since": "2026-10-14", "why": "Policy: no title or meta description LENGTH findings (no 60/160-character limits); Google rewrites snippets and length is not a defect.",
+     "re": "\\b(titles?|meta descriptions?|descriptions?)\\b[^.]{0,60}\\b(too long|too short|longer than|shorter than|exceeds?|over|under)\\b[^.]{0,20}\\d+\\s*(characters|chars)|\\b\\d+\\s*(characters|chars)\\b[^.]{0,40}\\b(limit|too long|too short|truncat\\w*|cut off)"}
+  ]
+}

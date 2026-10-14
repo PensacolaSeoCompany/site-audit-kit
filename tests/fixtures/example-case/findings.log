@@ -1,0 +1,3 @@
+$KIT_WORK/crawl/example-findings.json: 2 finding(s) (0 critical)
+   [high    ] Pages are missing the structured description search engines read
+   [high    ] 2 of 8 checked links on your site lead to pages that aren't there

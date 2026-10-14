@@ -1,0 +1,24 @@
+# run output and local state (never committed)
+work/
+reports/
+tests/_out/
+queue/*
+!queue/README.md
+config.env
+
+# installed dependencies
+.venv/
+node_modules/
+
+# Python / editor noise
+__pycache__/
+*.pyc
+*.bak*
+*.log
+!tests/fixtures/**/*.log
+*.swp
+.DS_Store
+
+# screenshots from runs; images under docs/ are kept
+*.png
+!docs/**/*.png

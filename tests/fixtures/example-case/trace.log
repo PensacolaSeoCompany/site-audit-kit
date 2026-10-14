@@ -1,0 +1,8 @@
+=== 2 non-200 URL(s) — with originating link(s) ===
+
+[404] https://example.com/old-page/   — BROKEN LINK (fix/remove on source)
+      linked from: https://example.com/
+
+[404] https://example.com/missing-coupon/   — BROKEN LINK (fix/remove on source)
+      linked from: https://example.com/services/drains/
+

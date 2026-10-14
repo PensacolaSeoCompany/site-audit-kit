@@ -1,0 +1,4 @@
+# Spool queue state (runtime only, not in git) — see run-queue.sh header.
+*
+!.gitignore
+!README.md

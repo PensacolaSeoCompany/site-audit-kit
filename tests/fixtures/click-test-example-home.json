@@ -1,0 +1,30 @@
+{
+ "url": "https://example.com/",
+ "out": "tests/_out/verify/click/click-test.json",
+ "tool": "click-test.js",
+ "started_utc": "2026-10-14T12:00:00.000Z",
+ "cap": {"elements": 60, "seconds": 90, "settle_ms": 1500},
+ "status": "measured",
+ "reason": null,
+ "http_status": 200,
+ "candidates_found": 5,
+ "results": [
+  {"selector": "#header > nav > ul > li:nth-of-type(1) > a", "text": "", "tag": "a", "href": "#", "role": null,
+   "verdict": "works", "signals": ["new_visible", "dialog", "dom"], "new_visible_elements": 12},
+  {"selector": "#listings > a.load-more", "text": "Load More", "tag": "a", "href": "#", "role": null,
+   "verdict": "works", "signals": ["new_visible"], "changes_without_click": ["scroll"], "new_visible_elements": 1},
+  {"selector": "#footer .social > span:nth-of-type(1) > a", "text": "Facebook", "tag": "a", "href": null, "role": null,
+   "verdict": "does nothing", "signals": [], "changes_without_click": ["scroll"]},
+  {"selector": "#footer .social > span:nth-of-type(2) > a", "text": "Instagram", "tag": "a", "href": null, "role": null,
+   "verdict": "does nothing", "signals": []},
+  {"selector": "#compare-panel > button:nth-of-type(2)", "text": "Close", "tag": "button", "href": null, "role": null,
+   "verdict": "works", "signals": ["attr"], "attributes_changed": ["class"]}
+ ],
+ "not_tested": [],
+ "idle_noise": {"flips": 0, "dom": false},
+ "works": 3,
+ "does_nothing": 2,
+ "unclear": 0,
+ "finished_utc": "2026-10-14T12:00:30.000Z",
+ "elapsed_s": 30.0
+}

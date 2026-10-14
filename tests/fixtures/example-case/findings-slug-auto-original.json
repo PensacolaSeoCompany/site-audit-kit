@@ -1,0 +1,27 @@
+{
+ "findings": [
+  {
+   "severity": "high",
+   "title": "Pages are missing the structured description search engines read",
+   "detail": "Structured data is a hidden summary that tells Google what a page is about. We checked every crawled page for it. What we found: 8 pages crawled, ZERO with JSON-LD. No LocalBusiness/Service schema anywhere.",
+   "urls": []
+  },
+  {
+   "severity": "high",
+   "title": "2 of 8 checked links on your site lead to pages that aren't there",
+   "whats_happening": "Every page on your site has its own address (a URL) \u2014 like a street address for that page. A link is just text or a button that sends someone to one of those addresses.\n\nWe followed the links across the 8 pages of your site that we crawled. 2 of them point at an address where there is no longer a page. They sit on 2 of your own pages \u2014 those pages themselves are fine; it's the link inside them that goes nowhere.",
+   "see_it": "Open this page of yours: https://example.com/\nSomewhere on it is a link pointing to: https://example.com/old-page/\nClick that link and watch what loads.\n\nThe full list is below: each broken address first, then underneath it the page (or pages) of yours that link to it.",
+   "youll_see": "Instead of a real page you'll get an error page \u2014 usually the words \"404\" or \"page not found\". That's a dead end. The address exists in the link, but nothing lives there anymore.",
+   "why": "Two things go wrong. A customer who clicks it hits a dead end and often leaves. And Google follows your links to learn what your site has \u2014 every time it follows one of these it records an error and spends its time on a page that isn't there instead of on the pages you actually want found.",
+   "fix": "On each page listed below, find that link and either point it at the correct address or remove it. If the page it used to go to has a new address, use the new one.\n\nIf you're not sure which link it is, the list below shows the exact text of the link as it's written on the page, so you or your web person can search for it.",
+   "urls": [
+    "https://example.com/old-page/  \u2014 returns error 404 (this page does not exist)",
+    "      \u21b3 linked from: https://example.com/",
+    "https://example.com/missing-coupon/  \u2014 returns error 404 (this page does not exist)",
+    "      \u21b3 linked from: https://example.com/services/drains/"
+   ]
+  }
+ ],
+ "perf_note": "See the Performance accordion; reference only, not a priority fix.",
+ "could_not_check": []
+}

@@ -1,0 +1,14 @@
+.git
+.venv
+node_modules
+work
+reports
+tests/_out
+__pycache__
+*.pyc
+queue/pending
+queue/running
+queue/done
+queue/failed
+queue/locks
+queue/heartbeat
