@@ -133,6 +133,13 @@ read PAGES OK200 FIRST <<< "$("$PY" -c "
 import json,sys; p=json.load(open(sys.argv[1])).get('pages') or []
 print(len(p), sum(1 for x in p if x.get('status')==200), (p[0].get('status') if p else None))" "$J" 2>"$SINK" || echo 0 0 none)"
 if ! fresh "$J" || [ "${PAGES:-0}" -eq 0 ] || [ "${OK200:-0}" -eq 0 ]; then
+  # A preflight refusal (disk floor, missing tool) is not a site problem: say the real reason first.
+  PRE_WHY="$(grep -m1 -oE 'FATAL preflight: .*' "$LOG" 2>"$SINK" || true)"
+  if [ -n "$PRE_WHY" ]; then
+    WHY="the audit did not start on this computer: ${PRE_WHY#FATAL preflight: }"
+    echo "NOT STARTED: $WHY"
+    stub 3 "$WHY"
+  fi
   WHY="the crawl got no working page: ${PAGES:-0} address(es) tried, ${OK200:-0} answered 200, first answer ${FIRST:-none}"
   case "${FIRST:-}" in 401|403|406|429) WHY="$WHY (the site refused our crawler: bot block, captcha or login)";; 0|None|none) WHY="$WHY (no answer: site down or unreachable)";; esac
   [ "$TIMED_OUT" = 1 ] && WHY="$WHY; the run hit the time limit (AUDIT_TIMEOUT=${AUDIT_TIMEOUT}s)"
