@@ -57,7 +57,7 @@ Without a verify pass, every finding in the report is a TOOL finding: a pointer,
    - Broken links: if evidence shows `missing_hash_anchor`, the cause is a table-of-contents link without "#".
    - Phone numbers: several numbers are usually offices or call tracking. Read the context.
      The phone check applies US rules; ignore "not a working number" for other countries.
-   - Self star ratings in schema: medium, not critical.
+   - a site\'s own aggregateRating markup is NEVER a finding (owner rule 2026-10-15); drop any such tool finding.
    - hreflang / lang: check whether a script sets `lang` at runtime before calling pages "invisible".
    - Subdomains: report only ones with no login and no robots block. A staging site open to search engines is medium.
    - Client-rendered (CSR) site or thin crawl: "no forms / no images / no schema / too small" findings are false.

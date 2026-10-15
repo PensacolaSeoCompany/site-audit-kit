@@ -414,8 +414,6 @@ for m in re.finditer(r"^(\d+b?)\.\s+(.+?)$", checks, re.M):
                 "Your website gives Google two conflicting descriptions of your business"),
                (r"coordinates ~\d+m apart",
                 "Your website lists two different locations for your business"),
-               (r"aggregateRating",
-                "Your website publishes its own star rating to Google"),
                (r"self-authored Review node",
                 "Your website publishes reviews it wrote about itself"),
                (r"double-encoded HTML entity",
@@ -1006,19 +1004,6 @@ for m in re.finditer(r"^(\d+b?)\.\s+(.+?)$", checks, re.M):
                       "tells Google the business's exact name and details. We read yours and found "
                       f"{_n16} problems with it: " + _client_copy(body))
             findings.append({"severity": "high", "title": title, "detail": detail, "urls": []})
-            continue
-        if not _multi and _n16 == 1 and "aggregateRating" in body:
-            title = "Your website publishes its own star rating to Google"
-            _agr = re.search(r"aggregateRating \(([\d.]+)/(\d+)", body)
-            detail = (
-                "Websites carry a hidden 'business card' in their code (structured data) that "
-                "tells Google about the business. Yours includes a star rating the site awards "
-                f"itself{f' ({_agr.group(1)} stars from {_agr.group(2)} reviews)' if _agr else ''} — "
-                "but Google stopped honoring self-published ratings in 2019, so it earns nothing, "
-                "and a score with no actual reviews visible on the page can read as fabricated if "
-                "anyone inspects it. Remove the star-rating block from the site's own markup; real "
-                "ratings belong on your Google Business Profile, where the reviews actually live.")
-            findings.append({"severity": "medium", "title": title, "detail": detail, "urls": []})
             continue
     # Check 13 robots-404-only case (a cleaning site: canned junk-sitemap title over a robots body)
     if num == "13" and "NO robots.txt" in body and body.count("⚠️") == 1 and "🚩" not in body:

@@ -184,7 +184,7 @@ The disclaimers, consent rule and responsibility terms are in [TERMS.md](TERMS.m
 - Some advice may not apply to your business, site, or situation. Use your own judgment and check with your web person.
 - You choose which changes to make. The template creator and this bot are not responsible for any loss of traffic, rankings, leads, or revenue from following or not following this report.
 
-**Releases.** Install a tagged release (`--branch v1.0.0`), never `main`. A release is tagged only when every test and the control-site checks pass. All dependencies are pinned (`requirements.txt`, `package-lock.json`).
+**Releases.** Install a tagged release (`--branch v1.0.1`), never `main`. A release is tagged only when every test and the control-site checks pass. All dependencies are pinned (`requirements.txt`, `package-lock.json`).
 
 ## Risks and how each is prevented
 

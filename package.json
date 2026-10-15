@@ -1,6 +1,6 @@
 {
   "name": "site-audit-kit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Technical SEO site audit kit: crawl, checks, findings, HTML/Markdown report.",
   "license": "MIT",

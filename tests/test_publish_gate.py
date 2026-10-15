@@ -170,5 +170,9 @@ class Gate(unittest.TestCase):
         self.assertEqual(r.returncode, 3, r.stdout)
         self.assertIn('detailed', r.stdout)
 
+    def test_refuses_self_rating_finding(self):  # owner 2026-10-15: aggregateRating is never a finding
+        src = self.make_case('acme', html=page('<span class=ft>Your website publishes its own star rating to Google</span>'))
+        self.assertEqual(self.run_gate('acme', 'report', src).returncode, 3)
+
 if __name__ == '__main__':
     unittest.main(verbosity=1)

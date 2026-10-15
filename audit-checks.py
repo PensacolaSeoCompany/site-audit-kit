@@ -1913,38 +1913,7 @@ def main():
             if '&amp;' in _nm or '&#' in _nm:
                 _issues.append(f"business name contains a double-encoded HTML entity: {_nm!r} — "
                                "Google reads this literally; the entity name is corrupted")
-            _ark = next((k for k in n if k.lower() == 'aggregaterating'), None)
-            if _ark:
-                _ar = n[_ark] if isinstance(n[_ark], dict) else {}
-                _badkey = " (also note: the property is written '" + _ark + "' — wrong " \
-                          "capitalization, an invalid name Google ignores outright)" \
-                          if _ark != 'aggregateRating' else ""
-                # a pest-control site (2026-08-05): this branch used to append "reads as fabricated
-                # when no reviews appear on the page" on the mere PRESENCE of the property —
-                # it never looked. That site's homepage shows "5.0 Google Reviews" + 3 named
-                # testimonials, so the client read a claim their own homepage disproves. Same
-                # defect class as the WP-version check (detect != evaluate): MEASURE, then assert.
-                # NOTE we only have the RAW homepage here. On a client-rendered site the
-                # reviews may be real and simply not in this HTML (that site: 0 raw hits,
-                # but the rendered page shows 5.0 + 3 named Google testimonials). So: assert
-                # the absence ONLY when raw HTML shows a server-rendered page with no review
-                # content anywhere. If the page looks JS-driven, stay silent about visibility
-                # rather than claim something this fetch cannot see.
-                _vis_html = _r2.sub(r'(?is)<(script|style|noscript)[^>]*>.*?</\1>', ' ', _hp)
-                _vis_txt = _r2.sub(r'(?s)<[^>]+>', ' ', _vis_html)
-                _has_reviews = bool(_r2.search(
-                    r'(?i)(\breviews?\b|\btestimonials?\b|★|⭐|rated?\s+[0-9.]+\s*(out of|/)\s*5'
-                    r'|[0-9.]+\s*stars?\b)', _vis_txt))
-                # server-rendered enough to trust the absence? (crude but sufficient: real
-                # body copy present). Threshold well below any real page's word count.
-                _raw_words = len([w for w in _r2.split(r'\s+', _vis_txt) if w.strip()])
-                _fab = ("" if (_has_reviews or _raw_words < 120) else
-                        " — and with no reviews or testimonials anywhere on the page, a "
-                        "hand-written rating reads as fabricated to anyone who checks")
-                _issues.append(f"self-authored aggregateRating ({_ar.get('ratingValue','?')}/"
-                               f"{_ar.get('reviewCount', _ar.get('ratingCount','?'))} reviews) on the "
-                               "business's own markup — ineligible for rich results since 2019"
-                               + _fab + _badkey)
+            # aggregateRating is NOT a finding (owner rule 2026-10-15): the self-rating claim was wrong; never state it.
             _rvk = next((k for k in n if k.lower() == 'review'), None)
             if _rvk:
                 _rv = n[_rvk] if isinstance(n[_rvk], list) else [n[_rvk]]
@@ -2075,9 +2044,6 @@ def main():
                 print("      SEO plugin's or the hand-coded block, not both saying different things.")
                 print("      If these are genuinely DIFFERENT entities (e.g. a person and the firm")
                 print("      they work for), keep both and LINK them with @id + worksFor/founder.")
-            if any('aggregateRating' in _i for _i in _issues):
-                print("      Remove the self-authored star-rating markup: Google has not shown")
-                print("      rich results for a business rating its own pages since 2019.")
         elif _biz:
             # COMPLETENESS, not just agreement (a multi-location garage-door site, 2026-08-01: homepage Organization node
             # had telephone:None address:None while inner pages carried full LocalBusiness NAP —

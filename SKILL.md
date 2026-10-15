@@ -17,7 +17,7 @@ Before emailing, posting or sharing a report anywhere: ask again, separately, ev
 
 ## 2. Install (pinned release, never main)
 
-    git clone --branch v1.0.0 --depth 1 https://github.com/PensacolaSeoCompany/site-audit-kit
+    git clone --branch v1.0.1 --depth 1 https://github.com/PensacolaSeoCompany/site-audit-kit
     cd site-audit-kit && ./install.sh        # no root; ends "SELF-CHECK OK", exit 0; safe to re-run
     ./doctor.sh                               # version table + self-check, changes nothing
 
