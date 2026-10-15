@@ -46,8 +46,8 @@ Tools:
 - Chrome: the `CHROME_BIN` environment variable, else the first of `google-chrome`,
   `google-chrome-stable`, `chromium`, `chromium-browser` found on `PATH`. `kit-paths.sh` copies it
   into `CHROME_PATH` for Lighthouse and puppeteer-style tools.
-- Database: optional. Without `MYSQL_*` variables the kit uses SQLite at `$KIT_WORK/crawler.sqlite`
-  (or plain JSON files). An audit needs no database server.
+- Database: none. The audit writes JSON files under `$KIT_WORK`. (The `crawler/` package, which has its own
+  MySQL/SQLite storage, is not called by `run-full-audit.sh`; see `crawler/NOT-IN-PIPELINE.md`.)
 - Proxy: only through the environment, `CRAWL_PROXY` (and `CRAWL_UA` for the user agent). There is no
   secrets file.
 - Report branding: off by default. `REPORT_BRAND` sets the footer text; `CTA_URL` turns on a

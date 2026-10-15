@@ -17,10 +17,9 @@ It crawls the site (up to 500 pages by default, 2 requests at a time, 1 s apart,
 ran; a completion gate at the end lists any stage that did not.
 
 - **Full crawl**: status codes, redirects, canonicals, titles, headings, images, word counts, internal
-  and external links, duplicate content (simhash), internal PageRank. Bot walls trigger a slower,
-  gentler retry.
+  and external links, and inlink counts per page. Bot walls trigger a slower, gentler retry.
 - **Standing checks** (`audit-checks.py`, 28 numbered checks): canonical points off-site or to a redirect;
-  structured data (missing, inconsistent, self-awarded star ratings); thin site; placeholder or demo
+  structured data (missing or inconsistent); thin site; placeholder or demo
   content and template titles; links on the wrong host (www vs non-www); crawlable login and account
   pages; contact consistency (phone numbers and emails across pages); malformed links that go nowhere;
   apex and www both serving the site; sitemap junk; index bloat (mass near-identical pages); internal links
@@ -145,7 +144,6 @@ the environment win.
 | `AUDIT_MIN_FREE_GB` | 2 | Disk floor; the run stops before starting below it. |
 | `REPORT_BRAND` | none | Footer text on the report. |
 | `CTA_URL`, `CTA_TEL`, `CTA_TEL_TXT` | none | A call-to-action box, shown only when `CTA_URL` is set. |
-| `MYSQL_*` | none | Optional MySQL; without it the kit uses SQLite under `KIT_WORK`. |
 | `SERPAPI_KEY` | none | Optional search API key for the index-size checks; without it they print "skipped" or UNKNOWN. |
 
 ## Troubleshooting
