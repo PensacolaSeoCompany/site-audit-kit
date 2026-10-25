@@ -1,0 +1,9 @@
+# Gitleaks config: the default rules, plus one allowance. Factor names in onpage/factors.json and its tests
+# are written as "key": "starts_with_variation_h1": lowercase words joined by _ are names, not secrets.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "onpage factor names (lowercase snake_case after \"key\")"
+regexTarget = "match"
+regexes = ['''key"?\s*[:=]\s*"[a-z][a-z0-9]*(_[a-z0-9]+)+"''']

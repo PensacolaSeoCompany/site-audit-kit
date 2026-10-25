@@ -1,0 +1,382 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "site-audit-kit/onpage/result.schema.json",
+ "title": "On-page comparison result (onpage.json)",
+ "type": "object",
+ "required": [
+  "tool",
+  "version",
+  "created",
+  "job",
+  "pages",
+  "factors",
+  "complete",
+  "notes",
+  "actions"
+ ],
+ "properties": {
+  "tool": {
+   "const": "site-audit-kit onpage"
+  },
+  "version": {
+   "type": "string"
+  },
+  "created": {
+   "type": "string"
+  },
+  "job": {
+   "type": "object"
+  },
+  "complete": {
+   "type": "boolean"
+  },
+  "notes": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "pages": {
+   "type": "array",
+   "minItems": 2,
+   "items": {
+    "type": "object",
+    "required": [
+     "role",
+     "url",
+     "measured",
+     "fetch",
+     "values",
+     "not_measured"
+    ],
+    "properties": {
+     "role": {
+      "enum": [
+       "mine",
+       "competitor"
+      ]
+     },
+     "label": {
+      "type": "string"
+     },
+     "url": {
+      "type": "string"
+     },
+     "measured": {
+      "type": "boolean"
+     },
+     "fetch": {
+      "type": "object",
+      "required": [
+       "final_url",
+       "status",
+       "mode_used",
+       "raw_words",
+       "rendered_words",
+       "js_dependent",
+       "blocked",
+       "error",
+       "ms",
+       "user_agent",
+       "source"
+      ],
+      "properties": {
+       "final_url": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "status": {
+        "type": [
+         "integer",
+         "null"
+        ]
+       },
+       "mode_used": {
+        "enum": [
+         "rendered",
+         "raw",
+         "saved",
+         null
+        ]
+       },
+       "raw_words": {
+        "type": [
+         "integer",
+         "null"
+        ]
+       },
+       "rendered_words": {
+        "type": [
+         "integer",
+         "null"
+        ]
+       },
+       "js_dependent": {
+        "type": [
+         "boolean",
+         "null"
+        ]
+       },
+       "blocked": {
+        "type": "boolean"
+       },
+       "error": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "ms": {
+        "type": "integer"
+       },
+       "user_agent": {
+        "enum": [
+         "bot",
+         "browser",
+         null
+        ]
+       },
+       "source": {
+        "enum": [
+         "live",
+         "saved-file"
+        ]
+       },
+       "note": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "saved_to": {
+        "type": [
+         "string",
+         "null"
+        ],
+        "description": "folder (relative to the report folder) where fetch saved server.html / browser.html"
+       },
+       "block_kind": {
+        "enum": [
+         "refusal",
+         "check",
+         null
+        ],
+        "description": "refusal = the site refused the bot's name (--as-browser may help); check = a bot check or captcha (never bypassed; only --html)"
+       }
+      }
+     },
+     "values": {
+      "type": "object"
+     },
+     "not_measured": {
+      "type": "object"
+     },
+     "duplicate_tags": {
+      "type": "object",
+      "additionalProperties": {
+       "type": "integer",
+       "minimum": 2
+      },
+      "description": "tags found more than once on this page (from measure_page notes.duplicate_tags), e.g. {\"meta:description\": 2}"
+     },
+     "evidence": {
+      "type": "object",
+      "description": "factor key -> the texts that factor read, with the keyword variations found in each (cli.collect_evidence); quoted under action lines",
+      "additionalProperties": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "text",
+         "matched"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "text": {
+          "type": "string"
+         },
+         "matched": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "factors": {
+   "type": "array",
+   "minItems": 50,
+   "maxItems": 50,
+   "items": {
+    "type": "object",
+    "required": [
+     "key",
+     "name",
+     "group",
+     "unit",
+     "band",
+     "mine",
+     "competitors",
+     "n_measured",
+     "n_more",
+     "n_less",
+     "competitor_min",
+     "competitor_median",
+     "competitor_max",
+     "competitor_avg",
+     "position",
+     "standing",
+     "gap_to_median",
+     "per_1k"
+    ],
+    "properties": {
+     "key": {
+      "type": "string"
+     },
+     "name": {
+      "type": "string"
+     },
+     "group": {
+      "type": "string"
+     },
+     "unit": {
+      "type": "string"
+     },
+     "mine": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "competitors": {
+      "type": "array",
+      "items": {
+       "type": [
+        "number",
+        "null"
+       ]
+      }
+     },
+     "competitor_avg": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "competitor_min": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "competitor_max": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "position": {
+      "enum": [
+       "below all",
+       "below most",
+       "middle",
+       "above most",
+       "above all",
+       "same as all",
+       "not measured"
+      ]
+     },
+     "band": {
+      "enum": [
+       "target",
+       "length",
+       "context"
+      ]
+     },
+     "n_measured": {
+      "type": "integer"
+     },
+     "n_more": {
+      "type": [
+       "integer",
+       "null"
+      ]
+     },
+     "n_less": {
+      "type": [
+       "integer",
+       "null"
+      ]
+     },
+     "competitor_median": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "gap_to_median": {
+      "type": [
+       "number",
+       "null"
+      ]
+     },
+     "standing": {
+      "type": "string"
+     },
+     "per_1k": {
+      "type": [
+       "object",
+       "null"
+      ],
+      "required": [
+       "mine",
+       "competitors",
+       "competitor_median"
+      ],
+      "properties": {
+       "mine": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "competitors": {
+        "type": "array",
+        "items": {
+         "type": [
+          "number",
+          "null"
+         ]
+        }
+       },
+       "competitor_median": {
+        "type": [
+         "number",
+         "null"
+        ]
+       }
+      }
+     },
+     "family": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   }
+  },
+  "actions": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   },
+   "description": "factor keys of the action list, in report order (target rows where most measured competitors have more)"
+  }
+ }
+}

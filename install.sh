@@ -223,6 +223,7 @@ row aiohttp  "$(req aiohttp)"           pyver aiohttp
 row yarl     "$(req yarl)"              pyver yarl
 row bs4      "$(req beautifulsoup4)"    pyver beautifulsoup4
 row lxml     "$(req lxml)"              pyver lxml
+row onpage   "50 factors, self-test"    "$PY" "$KIT_HOME/onpage/selftest.py"
 node_row(){ local m; m=$(node_major); [ "$m" -ge "$NODE_MIN" ] 2>"$SINK" || { echo "found ${m/#0/none}; run ./install.sh"; return 1; }
   echo "$(node --version) ($(node_kind)) at $(command -v node)"; }
 row node     ">= $NODE_MIN"             node_row
@@ -257,7 +258,7 @@ if [ -x "$CB" ] && [ "$LAUNCH_OK" = 0 ]; then
 fi
 if [ "$FAIL" -eq 0 ]; then
   echo "SELF-CHECK OK. Python: $PY  Node: $(command -v node)  Chrome: $CB"
-  echo "Next: ./audit.sh https://example.com"
+  echo "Next: ./audit.sh https://example.com   or   ./onpage.sh --keyword \"...\" --mine URL --competitor URL (x3)"
   exit 0
 fi
 echo "SELF-CHECK FAILED: $FAIL item(s). Fix the FAIL rows above, then re-run ./install.sh (or ./doctor.sh to check again)."

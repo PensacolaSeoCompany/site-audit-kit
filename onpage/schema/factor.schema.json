@@ -1,0 +1,107 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "site-audit-kit/onpage/factor.schema.json",
+ "title": "On-page factor registry (onpage/factors.json)",
+ "type": "object",
+ "required": [
+  "version",
+  "about",
+  "factors"
+ ],
+ "properties": {
+  "version": {
+   "type": "integer"
+  },
+  "about": {
+   "type": "string"
+  },
+  "factors": {
+   "type": "array",
+   "minItems": 50,
+   "maxItems": 50,
+   "items": {
+    "type": "object",
+    "required": [
+     "key",
+     "name",
+     "group",
+     "band",
+     "measure",
+     "params",
+     "unit",
+     "definition"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+     },
+     "name": {
+      "type": "string",
+      "minLength": 3
+     },
+     "group": {
+      "enum": [
+       "content",
+       "headings",
+       "head",
+       "links",
+       "images",
+       "size",
+       "social",
+       "markup"
+      ]
+     },
+     "band": {
+      "enum": [
+       "target",
+       "length",
+       "context"
+      ]
+     },
+     "measure": {
+      "enum": [
+       "matches",
+       "sentences_with",
+       "starts_with",
+       "is_exactly",
+       "tag_count",
+       "word_count",
+       "sentence_count",
+       "text_kb",
+       "css_kb",
+       "url_count",
+       "questions",
+       "term_frequency",
+       "tf_idf",
+       "phones",
+       "social",
+       "has"
+      ]
+     },
+     "params": {
+      "type": "object"
+     },
+     "unit": {
+      "enum": [
+       "count",
+       "words",
+       "KB",
+       "yes/no",
+       "score"
+      ]
+     },
+     "definition": {
+      "type": "string",
+      "minLength": 10
+     },
+     "family": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+     }
+    }
+   }
+  }
+ }
+}

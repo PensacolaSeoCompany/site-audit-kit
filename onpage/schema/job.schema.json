@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "site-audit-kit/onpage/job.schema.json",
+  "title": "On-page comparison job (what onpage.sh was asked to do)",
+  "type": "object",
+  "required": ["keyword", "mine", "competitors", "mode", "variations"],
+  "additionalProperties": false,
+  "properties": {
+    "keyword": {"type": "string", "minLength": 1, "maxLength": 200},
+    "mine": {"type": "string", "pattern": "^https?://"},
+    "competitors": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"type": "string", "pattern": "^https?://"}},
+    "mode": {"enum": ["rendered", "raw"]},
+    "variations": {"type": "array", "items": {"type": "string"}},
+    "extra_variations": {"type": "array", "items": {"type": "string"}},
+    "name": {"type": "string"}
+  }
+}

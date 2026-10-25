@@ -25,7 +25,7 @@ Usage: url-discovery.py <domain-or-url> [crawl.json]
 """
 import json, os, re, sys, urllib.request
 from urllib.parse import urlparse
-# §65 2026-08-06: shared transport — installs the CRAWL_PROXY opener globally (see crawl_transport.py)
+# Shared transport (2026-08-06): installs the CRAWL_PROXY opener globally (see crawl_transport.py)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import crawl_transport as _tx
 import kit_env
@@ -48,13 +48,13 @@ NO_THIRD = bool(os.environ.get("KIT_NO_THIRD_PARTY"))
 apex = re.sub(r"^www\.", "", dom)
 crawl_json = sys.argv[2] if len(sys.argv) > 2 else None
 
-# UA comes from the shared transport so CRAWL_UA is honoured (§45: SiteGround 403s the Chrome UA
+# UA comes from the shared transport so CRAWL_UA is honoured (some hosts, e.g. SiteGround, 403 the Chrome UA
 # even through the residential proxy — a garage-door site 2026-09-22: CT hosts 403, "0 sitemap URLs",
 # "no open CMS API" while check 13 read 45 sitemap URLs with the Safari UA on the same proxy).
 UA = dict(_tx.HDRS)
 
 def get(u, timeout=30):
-    # Shared transport: proxy + CRAWL_UA + gzip sniff (§68). The bare urlopen here decoded an
+    # Shared transport: proxy + CRAWL_UA + gzip sniff. The bare urlopen here decoded an
     # unconditionally-gzipped sitemap as mojibake -> "1 URL across 3 sitemap files" while check 13
     # read 46 from the same files (a garage-door site 2026-09-22).
     return _tx.fetch(u, timeout=timeout)[1] or ""

@@ -61,7 +61,9 @@ list more findings than the JSON.
 
 ## Install
 
-    git clone <this repo> site-audit-kit && cd site-audit-kit
+Needs Linux, `git`, `curl`, `xz-utils` and `python3` 3.10+ with venv (Debian/Ubuntu: `python3-venv`).
+
+    git clone --branch v1.1.1 --depth 1 <this repo> site-audit-kit && cd site-audit-kit
     ./install.sh             # default, no root: Python venv, npm packages; Node 22 into .node/ if system
                              # node is missing or older than 20; Chrome for Testing into .chrome/ if no Chrome
     ./install.sh --system    # optional: also apt packages + system Chrome (needs root or sudo)
@@ -103,6 +105,35 @@ of report.md).
 The stage orchestrator can also be run directly:
 
     ./run-full-audit.sh <url> <slug> "<Business Name>" [service-page-url] [deep-page-url]
+
+## On-page comparison (one page against its competitors)
+
+    ./onpage.sh --keyword "stump removal" --mine https://you.example/page --name "Your Co" \
+      --competitor https://a.example/page --competitor https://b.example/page --competitor https://c.example/page
+
+Counts 50 on-page factors on your page and on 1 to 5 competitor pages (3 is the usual: pages of the same
+kind as yours that rank in the normal results for the keyword, not directories, ads or the map pack).
+Read-only, about 15 to 60 seconds. Writes `reports/onpage/<keyword>_<host>/`: `onpage.html`, `onpage.md`,
+`onpage.json` (schema `onpage/schema/result.schema.json`), `run.log` and `pages/` (the HTML that was measured).
+A re-run never overwrites an earlier report: it writes to `<folder>-2`, `-3` ... and says so on stdout
+(`--out DIR` is used as given). A link or heading repeated on the page (the same menu for phone and desktop)
+counts once: same tag, same visible text and, for a link, the same address.
+
+Each factor has a band. The action list ("Where most competitors have more (ideas to test)", also the top 10
+on stdout) holds only keyword-placement factors where most of the measured competitors have more than you,
+quoted as a range, the middle value and "n of 3 have more", with the counted text quoted under each line
+and a whole-number "N more" to reach the middle value (rounded up). It
+needs at least 2 measured competitors; below that the report says why there is no list. The page address is
+never a to-do (renaming a page that ranks needs a 301 redirect). Page-length counts are summed up in one line
+with per 1,000 words rates; source and markup factors are shown for reference, never as to-dos. Duplicate
+title or meta description tags on your page are named at the top. These are 50 common on-page
+factors; none is proven to move rankings.
+With 3 competitors no statistics are possible, so each action is an idea to test one change at a time
+(SKILL.md section 9 has the recipe). Exit codes: 0 complete (every page measured the same way), 6 partial
+(a competitor not measured, or the browser failed for some pages but not others), 4 nothing to compare, 2 bad
+arguments, 3 did not start, 5 report failed. If Chrome could not start for any page, that page is measured from
+the server HTML and the report says so at the top ("Measured without a browser"): counts may then be lower
+than what visitors see.
 
 ## Batch mode
 
@@ -151,7 +182,7 @@ the environment win.
 | You see | Do this |
 |---|---|
 | `Chrome not found` / preflight fails on Chrome | Run `./install.sh`, or set `CHROME_BIN=/path/to/chrome`. |
-| Chrome crashes at once in Docker or as root | Every tool already starts Chrome with `--no-sandbox` and `--disable-dev-shm-usage`. If it still dies, give the container more shared memory (`--shm-size=1g`) and check `"$CHROME_BIN" --headless=new --dump-dom https://example.com`. |
+| Chrome crashes at once in Docker or as root | The audit tools start Chrome with `--no-sandbox` and `--disable-dev-shm-usage`; `onpage.sh` starts it with its sandbox and retries once without it when the sandbox cannot start (the record says so). If it still dies, give the container more shared memory (`--shm-size=1g`) and check `"$CHROME_BIN" --headless=new --dump-dom https://example.com`. |
 | `PREFLIGHT FAILED` (exit 3) | A Python or npm package, Node 20+ or Chrome is missing. Run `./install.sh`, then `./doctor.sh`. |
 | `CRAWL FAILED` (exit 4) | No pages came back. Read the log lines it prints: DNS, TLS, a firewall, or a thin crawl that needs `--csr`. |
 | Pages answer 403 / 429 / a bot challenge | The site's firewall refused us. Those pages are listed under "What we could not check", never as broken. Try `CRAWL_DELAY=3 CRAWL_CONCURRENCY=1`, a browser `CRAWL_UA`, or a `CRAWL_PROXY` for the audited site. |
@@ -182,7 +213,7 @@ The disclaimers, consent rule and responsibility terms are in [TERMS.md](TERMS.m
 - Some advice may not apply to your business, site, or situation. Use your own judgment and check with your web person.
 - You choose which changes to make. The template creator and this bot are not responsible for any loss of traffic, rankings, leads, or revenue from following or not following this report.
 
-**Releases.** Install a tagged release (`--branch v1.0.1`), never `main`. A release is tagged only when every test and the control-site checks pass. All dependencies are pinned (`requirements.txt`, `package-lock.json`).
+**Releases.** Install a tagged release (`--branch v1.1.1`), never `main`. A release is tagged only when every test and the control-site checks pass. All dependencies are pinned (`requirements.txt`, `package-lock.json`).
 
 ## Risks and how each is prevented
 

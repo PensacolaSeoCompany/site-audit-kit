@@ -1,0 +1,693 @@
+{
+ "version": 2,
+ "about": "The 50 on-page factors the kit measures. These are 50 common on-page factors; none is proven to move rankings. Bands: 'target' rows are where the keyword sits and what a writer edits; 'length' rows grow with page length; 'context' rows describe source and markup. Limits: variation inflection is English only; Chinese, Japanese and Thai keywords match as character substrings, but a run of those characters with no space counts as one word in word counts; text hidden only by CSS is counted as text (the HTML alone cannot tell); content nested deeper than 2,048 elements is not read; words with an ending or particle attached (Korean '\uce58\uacfc\ub294', German 'Zahnarztpraxis') do not match the bare keyword.",
+ "factors": [
+  {
+   "key": "variations_first100",
+   "name": "Keyword variations in the first 100 words",
+   "group": "content",
+   "band": "target",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "first100"
+   },
+   "unit": "count",
+   "definition": "Variation matches inside the first 100 words of the page text (the title, then the visible body text). The window is counted in words (word_count's word: \"line-up\" is one word, a lone \"&\" is one); a phrase must lie wholly inside the window and inside one block.",
+   "family": "first100"
+  },
+  {
+   "key": "variations_canonical",
+   "name": "Keyword variations in the page's preferred address (canonical link)",
+   "group": "head",
+   "band": "target",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "canonical"
+   },
+   "unit": "count",
+   "definition": "Variation matches in the address of the FIRST <link rel=\"canonical\"> (decoded; words are split at / - . and other separators). A second canonical is reported as a duplicate, not added.",
+   "family": "url"
+  },
+  {
+   "key": "variations_meta_description",
+   "name": "Keyword variations in the meta description (the summary search results may show)",
+   "group": "head",
+   "band": "target",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "meta:description"
+   },
+   "unit": "count",
+   "definition": "Variation matches in the content of the FIRST <meta name=\"description\"> tag (search engines use one; a second tag is reported as a duplicate, not added).",
+   "family": "meta_description"
+  },
+  {
+   "key": "variations_og_description",
+   "name": "Keyword variations in the social-share description (Open Graph)",
+   "group": "head",
+   "band": "target",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "meta:og:description"
+   },
+   "unit": "count",
+   "definition": "Variation matches in the content of the FIRST <meta property=\"og:description\"> tag (link previews use one; a second tag is reported as a duplicate, not added).",
+   "family": "meta_description"
+  },
+  {
+   "key": "variations_og_title",
+   "name": "Keyword variations in the social-share title (Open Graph)",
+   "group": "head",
+   "band": "target",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "meta:og:title"
+   },
+   "unit": "count",
+   "definition": "Variation matches in the content of the FIRST <meta property=\"og:title\"> tag (link previews use one; a second tag is reported as a duplicate, not added).",
+   "family": "title"
+  },
+  {
+   "key": "variations_title",
+   "name": "Keyword variations in the title tag (the page title in search results)",
+   "group": "head",
+   "band": "target",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "title"
+   },
+   "unit": "count",
+   "definition": "Variation matches in the page's <title> (the document title only; a <title> inside an SVG image is not the page title).",
+   "family": "title"
+  },
+  {
+   "key": "h1_count",
+   "name": "Number of H1 tags (main headings)",
+   "group": "headings",
+   "band": "target",
+   "measure": "tag_count",
+   "params": {
+    "tags": [
+     "h1"
+    ]
+   },
+   "unit": "count",
+   "definition": "H1 elements in the page. Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "h1"
+  },
+  {
+   "key": "has_heading_question",
+   "name": "A heading is a question",
+   "group": "headings",
+   "band": "target",
+   "measure": "questions",
+   "params": {
+    "scope": "headings",
+    "as": "yes/no",
+    "once": true
+   },
+   "unit": "yes/no",
+   "definition": "1 if at least one heading tag (H1 to H6) ends with a question mark, else 0. Elements inside template, noscript or an element marked hidden are not counted. A repeated heading counts once: a heading with the same tag and the same visible text as an earlier one (the same call-to-action shown twice) is left out.",
+   "family": "questions"
+  },
+  {
+   "key": "heading_questions",
+   "name": "Questions in headings",
+   "group": "headings",
+   "band": "target",
+   "measure": "questions",
+   "params": {
+    "scope": "headings",
+    "once": true
+   },
+   "unit": "count",
+   "definition": "Heading tags (H1 to H6) whose text ends with a question mark. Elements inside template, noscript or an element marked hidden are not counted. A repeated heading counts once: a heading with the same tag and the same visible text as an earlier one (the same call-to-action shown twice) is left out.",
+   "family": "questions"
+  },
+  {
+   "key": "starts_with_variation_h1",
+   "name": "H1 tags starting with a variation",
+   "group": "headings",
+   "band": "target",
+   "measure": "starts_with",
+   "params": {
+    "target": "variations",
+    "tags": [
+     "h1"
+    ]
+   },
+   "unit": "count",
+   "definition": "H1 tags whose text starts with a keyword variation (the first words of the tag are a variation). Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "h1"
+  },
+  {
+   "key": "starts_with_variation_title",
+   "name": "Title tag starts with a variation",
+   "group": "headings",
+   "band": "target",
+   "measure": "starts_with",
+   "params": {
+    "target": "variations",
+    "tags": [
+     "title"
+    ]
+   },
+   "unit": "count",
+   "definition": "Page title tags (0 or 1) whose text starts with a keyword variation (the first words of the tag are a variation). Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "title"
+  },
+  {
+   "key": "variations_h1",
+   "name": "Keyword variations in H1 tags",
+   "group": "headings",
+   "band": "target",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tags:h1"
+   },
+   "unit": "count",
+   "definition": "Keyword-variation matches inside the text of H1 tags. Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "h1"
+  },
+  {
+   "key": "variations_a",
+   "name": "Keyword variations in link text",
+   "group": "links",
+   "band": "target",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tags:a",
+    "once": true
+   },
+   "unit": "count",
+   "definition": "Keyword-variation matches inside the text of <a> links. Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted. A repeated element counts once: a link with the same visible text and the same address as an earlier link (a phone menu and a desktop menu holding the same links) is left out.",
+   "family": "link_text"
+  },
+  {
+   "key": "keyword_body",
+   "name": "Exact keyword in the body",
+   "group": "content",
+   "band": "length",
+   "measure": "matches",
+   "params": {
+    "target": "keyword",
+    "scope": "body_text"
+   },
+   "unit": "count",
+   "definition": "Times the exact keyword phrase appears in the visible text (text in the HTML that is not inside script, style, noscript, template, svg or an element marked hidden; text hidden only by CSS is still counted, because the HTML alone cannot tell) of the page body. A phrase never runs across two blocks."
+  },
+  {
+   "key": "question_count",
+   "name": "Number of questions",
+   "group": "content",
+   "band": "length",
+   "measure": "questions",
+   "params": {
+    "scope": "body"
+   },
+   "unit": "count",
+   "definition": "Sentences of the visible body text (as split for sentence_count) that end with a question mark."
+  },
+  {
+   "key": "term_frequency",
+   "name": "Keyword variations anywhere in the page code, as a score (1 = once, 2 = 10 times, 3 = 100 times)",
+   "group": "content",
+   "band": "length",
+   "measure": "term_frequency",
+   "params": {
+    "target": "variations",
+    "scope": "html_source"
+   },
+   "unit": "score",
+   "definition": "1 + log10(n), where n = keyword-variation matches in the HTML source (variations_html): visible text plus scripts, JSON-LD, comments and attribute values, not only the text a reader sees; 0 when there are none. Log-scaled, so doubling n adds about 0.3."
+  },
+  {
+   "key": "variations_body",
+   "name": "Keyword variations in the body",
+   "group": "content",
+   "band": "length",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "body_text"
+   },
+   "unit": "count",
+   "definition": "Times any keyword variation appears in the visible text (text in the HTML that is not inside script, style, noscript, template, svg or an element marked hidden; text hidden only by CSS is still counted, because the HTML alone cannot tell) of the page body. A phrase never runs across two blocks (paragraphs, list items, headings, cells)."
+  },
+  {
+   "key": "variations_li",
+   "name": "Keyword variations in list items",
+   "group": "content",
+   "band": "length",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tags:li"
+   },
+   "unit": "count",
+   "definition": "Keyword-variation matches inside the text of <li> list items. Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted."
+  },
+  {
+   "key": "variations_p",
+   "name": "Keyword variations in paragraphs",
+   "group": "content",
+   "band": "length",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tag:p"
+   },
+   "unit": "count",
+   "definition": "Variation matches inside <p> elements. Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted."
+  },
+  {
+   "key": "variations_sentences",
+   "name": "Sentences with a keyword variation",
+   "group": "content",
+   "band": "length",
+   "measure": "sentences_with",
+   "params": {
+    "target": "variations"
+   },
+   "unit": "count",
+   "definition": "Sentences of the visible body text (as split for sentence_count) holding at least one keyword variation."
+  },
+  {
+   "key": "exact_variation_h1_h3",
+   "name": "H1-H3 tags that are exactly a variation",
+   "group": "headings",
+   "band": "length",
+   "measure": "is_exactly",
+   "params": {
+    "target": "variations",
+    "tags": [
+     "h1",
+     "h2",
+     "h3"
+    ]
+   },
+   "unit": "count",
+   "definition": "H1, H2 and H3 tags whose whole text is exactly one keyword variation (nothing before or after it, punctuation aside). Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "headings"
+  },
+  {
+   "key": "exact_variation_headings",
+   "name": "Headings that are exactly a variation",
+   "group": "headings",
+   "band": "length",
+   "measure": "is_exactly",
+   "params": {
+    "target": "variations",
+    "tags": [
+     "h1",
+     "h2",
+     "h3",
+     "h4",
+     "h5",
+     "h6"
+    ]
+   },
+   "unit": "count",
+   "definition": "Heading tags (H1 to H6) whose whole text is exactly one keyword variation (nothing before or after it, punctuation aside). Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "headings"
+  },
+  {
+   "key": "starts_with_variation_h1_h3",
+   "name": "H1-H3 tags starting with a variation",
+   "group": "headings",
+   "band": "length",
+   "measure": "starts_with",
+   "params": {
+    "target": "variations",
+    "tags": [
+     "h1",
+     "h2",
+     "h3"
+    ]
+   },
+   "unit": "count",
+   "definition": "H1, H2 and H3 tags whose text starts with a keyword variation (the first words of the tag are a variation). Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "headings"
+  },
+  {
+   "key": "starts_with_variation_h2",
+   "name": "H2 tags starting with a variation",
+   "group": "headings",
+   "band": "length",
+   "measure": "starts_with",
+   "params": {
+    "target": "variations",
+    "tags": [
+     "h2"
+    ]
+   },
+   "unit": "count",
+   "definition": "H2 tags whose text starts with a keyword variation (the first words of the tag are a variation). Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "headings"
+  },
+  {
+   "key": "starts_with_variation_headings",
+   "name": "Headings starting with a variation",
+   "group": "headings",
+   "band": "length",
+   "measure": "starts_with",
+   "params": {
+    "target": "variations",
+    "tags": [
+     "h1",
+     "h2",
+     "h3",
+     "h4",
+     "h5",
+     "h6"
+    ]
+   },
+   "unit": "count",
+   "definition": "Heading tags (H1 to H6) whose text starts with a keyword variation (the first words of the tag are a variation). Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "headings"
+  },
+  {
+   "key": "variations_h1_h2",
+   "name": "Keyword variations in H1 and H2 tags",
+   "group": "headings",
+   "band": "length",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tags:h1,h2"
+   },
+   "unit": "count",
+   "definition": "Keyword-variation matches inside the text of H1 and H2 tags. Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "headings"
+  },
+  {
+   "key": "variations_h1_h3",
+   "name": "Keyword variations in H1, H2 and H3 tags",
+   "group": "headings",
+   "band": "length",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tags:h1,h2,h3"
+   },
+   "unit": "count",
+   "definition": "Keyword-variation matches inside the text of H1, H2 and H3 tags. Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "headings"
+  },
+  {
+   "key": "variations_h2",
+   "name": "Keyword variations in H2 tags",
+   "group": "headings",
+   "band": "length",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tags:h2"
+   },
+   "unit": "count",
+   "definition": "Keyword-variation matches inside the text of H2 tags. Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "headings"
+  },
+  {
+   "key": "variations_h3",
+   "name": "Keyword variations in H3 tags",
+   "group": "headings",
+   "band": "length",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tags:h3"
+   },
+   "unit": "count",
+   "definition": "Keyword-variation matches inside the text of H3 tags. Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "headings"
+  },
+  {
+   "key": "variations_headings",
+   "name": "Keyword variations in H1-H6 tags",
+   "group": "headings",
+   "band": "length",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tags:h1,h2,h3,h4,h5,h6"
+   },
+   "unit": "count",
+   "definition": "Keyword-variation matches inside the text of all heading tags (H1 to H6). Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted.",
+   "family": "headings"
+  },
+  {
+   "key": "p_count",
+   "name": "Number of paragraphs",
+   "group": "markup",
+   "band": "length",
+   "measure": "tag_count",
+   "params": {
+    "tags": [
+     "p"
+    ]
+   },
+   "unit": "count",
+   "definition": "<p> elements in the page. Elements inside template, noscript or an element marked hidden are not counted."
+  },
+  {
+   "key": "sentence_count",
+   "name": "Number of sentences",
+   "group": "size",
+   "band": "length",
+   "measure": "sentence_count",
+   "params": {},
+   "unit": "count",
+   "definition": "Sentences in the visible body text: a sentence ends at . ! ? followed by a space (not after an abbreviation such as St., Ft., Mt., Dr., U.S., e.g.), at a CJK full stop, at a block edge (paragraph, heading, list item, cell) or a bullet. Each must hold a word."
+  },
+  {
+   "key": "text_kb",
+   "name": "Visible text size (KB)",
+   "group": "size",
+   "band": "length",
+   "measure": "text_kb",
+   "params": {},
+   "unit": "KB",
+   "definition": "Size of the page text (the title plus the visible body text, whitespace collapsed), UTF-8 bytes / 1024."
+  },
+  {
+   "key": "word_count",
+   "name": "Word count",
+   "group": "size",
+   "band": "length",
+   "measure": "word_count",
+   "params": {
+    "scope": "page"
+   },
+   "unit": "words",
+   "definition": "Words in the page text (the title plus the visible body text). A word = letters/digits with inner hyphens or apostrophes kept (\"line-up\", \"don't\" are one word); a lone \"&\" counts; every word counts, short ones (\"a\", \"to\", \"5\") too."
+  },
+  {
+   "key": "word_count_with_hidden",
+   "name": "Word count including hidden text",
+   "group": "size",
+   "band": "length",
+   "measure": "word_count",
+   "params": {
+    "scope": "with_hidden"
+   },
+   "unit": "words",
+   "definition": "word_count plus the words a reader does not see at once: text inside noscript and elements marked hidden, and image alt text. Same word rule."
+  },
+  {
+   "key": "tf_idf",
+   "name": "Keyword score that counts variations few of these pages use as worth more",
+   "group": "content",
+   "band": "context",
+   "measure": "tf_idf",
+   "params": {
+    "target": "variations"
+   },
+   "unit": "score",
+   "definition": "Sum, over each variation found in the page's HTML source, of (1 + log10 of its matches) x log10(N / d), where N = the pages compared together and d = how many of them contain that variation; divided by the number of variations found. Needs the whole compared set: a page measured alone is 'not measured'. With 2 to 6 pages that were all picked because they match the search, a variation on every page weighs 0 and one used by a single page jumps up: not meaningful as a target; shown as context."
+  },
+  {
+   "key": "us_phone_count",
+   "name": "US phone numbers",
+   "group": "content",
+   "band": "context",
+   "measure": "phones",
+   "params": {},
+   "unit": "count",
+   "definition": "US-format phone numbers (10 digits, optional +1, written like (312) 555-0123, 312-555-0123, 312.555.0123 or 312 555 0123) in the visible text, plus tel: links whose number is not also written in the text."
+  },
+  {
+   "key": "variations_html",
+   "name": "Keyword variations anywhere in the page code (including code visitors do not see)",
+   "group": "content",
+   "band": "context",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "html_source"
+   },
+   "unit": "count",
+   "definition": "Times any variation appears anywhere in the HTML source: every text node (visible text, scripts, styles, head, comments; inline tags do not break a phrase, block tags do) plus each tag attribute value (link addresses, alt, content...). Tag and attribute names are not counted."
+  },
+  {
+   "key": "has_apple_touch_icon",
+   "name": "Has an iPhone home-screen icon (Apple touch icon)",
+   "group": "head",
+   "band": "context",
+   "measure": "has",
+   "params": {
+    "what": "apple_touch_icon"
+   },
+   "unit": "yes/no",
+   "definition": "1 if a <link rel=\"apple-touch-icon\"> (or apple-touch-icon-precomposed) is present, else 0."
+  },
+  {
+   "key": "og_type_article",
+   "name": "Social-share type is \"article\" (Open Graph)",
+   "group": "head",
+   "band": "context",
+   "measure": "has",
+   "params": {
+    "what": "og_type_article"
+   },
+   "unit": "yes/no",
+   "definition": "1 if <meta property=\"og:type\"> says \"article\", else 0."
+  },
+  {
+   "key": "image_count",
+   "name": "Number of images",
+   "group": "images",
+   "band": "context",
+   "measure": "tag_count",
+   "params": {
+    "tags": [
+     "img"
+    ]
+   },
+   "unit": "count",
+   "definition": "<img> elements in the page. Elements inside template, noscript or an element marked hidden are not counted."
+  },
+  {
+   "key": "absolute_url_count",
+   "name": "Full web addresses (http/https) written in the page code",
+   "group": "links",
+   "band": "context",
+   "measure": "url_count",
+   "params": {},
+   "unit": "count",
+   "definition": "Absolute addresses (starting http:// or https://) written anywhere in the HTML source: links, images, scripts, styles, data."
+  },
+  {
+   "key": "variations_distinct_href",
+   "name": "Keyword variations in link addresses, each address once",
+   "group": "links",
+   "band": "context",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "distinct_href"
+   },
+   "unit": "count",
+   "definition": "As variations_href, but each different href (resolved against the page address) is read once, however many links use it."
+  },
+  {
+   "key": "variations_href",
+   "name": "Keyword variations in link addresses",
+   "group": "links",
+   "band": "context",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "attr:a@href"
+   },
+   "unit": "count",
+   "definition": "Variation matches in the href of every <a> (decoded; words split at / - . and other separators)."
+  },
+  {
+   "key": "variations_urls",
+   "name": "Keyword variations in full web addresses written in the page code",
+   "group": "links",
+   "band": "context",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "absolute_urls"
+   },
+   "unit": "count",
+   "definition": "Variation matches inside every absolute address (http:// or https://) written anywhere in the HTML source, decoded; one address is one text."
+  },
+  {
+   "key": "variations_script",
+   "name": "Keyword variations in scripts (page code and structured data)",
+   "group": "markup",
+   "band": "context",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "script"
+   },
+   "unit": "count",
+   "definition": "Variation matches inside <script> elements (code and JSON-LD data), one script = one text."
+  },
+  {
+   "key": "variations_section",
+   "name": "Keyword variations in page sections (section tags)",
+   "group": "markup",
+   "band": "context",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tags:section"
+   },
+   "unit": "count",
+   "definition": "Keyword-variation matches inside the text of <section> elements. Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted."
+  },
+  {
+   "key": "variations_span",
+   "name": "Keyword variations in span tags (short pieces of styled text)",
+   "group": "markup",
+   "band": "context",
+   "measure": "matches",
+   "params": {
+    "target": "variations",
+    "scope": "tags:span"
+   },
+   "unit": "count",
+   "definition": "Keyword-variation matches inside the text of <span> elements. Nested elements of the same tag count once (outermost element only); a phrase never runs across two blocks. Elements inside template, noscript or an element marked hidden are not counted."
+  },
+  {
+   "key": "inline_css_kb",
+   "name": "Styling code written inside the page (KB)",
+   "group": "size",
+   "band": "context",
+   "measure": "css_kb",
+   "params": {},
+   "unit": "KB",
+   "definition": "Size of the CSS written inside <style> elements in the page, UTF-8 bytes / 1024 (style=\"\" attributes and linked stylesheets are not counted)."
+  },
+  {
+   "key": "linkedin_links",
+   "name": "LinkedIn profile mentions",
+   "group": "social",
+   "band": "context",
+   "measure": "social",
+   "params": {
+    "networks": [
+     "linkedin"
+    ],
+    "distinct": false,
+    "where": "source"
+   },
+   "unit": "count",
+   "definition": "LinkedIn company/person/school/showcase page addresses written anywhere in the HTML source (links, JSON-LD sameAs, scripts). Posts, articles, share and login addresses are not profiles."
+  }
+ ]
+}

@@ -144,8 +144,35 @@ def install():
         return False
 
 
+class _Undecodable(Exception):
+    """A body in a content-encoding this process cannot undo (br without the brotli module)."""
+
+
+def _brotli():
+    try:
+        import brotli  # noqa: F401
+        return brotli
+    except Exception:
+        try:
+            import brotlicffi as brotli  # noqa: F401
+            return brotli
+        except Exception:
+            return None
+
+
 def _decode(raw, headers=None):
-    """Bytes -> text, decompressing gzip/deflate first.
+    """Bytes -> text (UTF-8), decompressing first (see decompress)."""
+    if not raw:
+        return ""
+    if isinstance(raw, str):
+        return raw
+    return decompress(raw, headers).decode("utf-8", "replace")
+
+
+def decompress(raw, headers=None):
+    """Bytes -> the decompressed bytes (gzip/deflate/br), NOT decoded, so a caller can apply the page's
+    own character set (onpage/fetch.py does, with textutil.decode_html). Raises _Undecodable for br it
+    cannot undo.
 
     §68 (a restoration-company site, 2026-08-07). Some origins/CDNs (Sucuri and friends) send
     `content-encoding: gzip` UNCONDITIONALLY — even when the client sends no Accept-Encoding,
@@ -164,9 +191,9 @@ def _decode(raw, headers=None):
     Never trust the header alone: it can be absent or wrong, so sniff the magic bytes too.
     """
     if not raw:
-        return ""
+        return b""
     if isinstance(raw, str):
-        return raw
+        return raw.encode("utf-8")
     enc = ""
     if headers is not None:
         try:
@@ -176,6 +203,17 @@ def _decode(raw, headers=None):
     # magic-byte sniff wins over a missing/lying header
     if raw[:3] == b"\x1f\x8b\x08":
         enc = "gzip"
+    elif enc == "br":
+        # brotli has no magic bytes; trust the header
+        _b = _brotli()
+        if _b is None:
+            raise _Undecodable("br")
+        try:
+            return _b.decompress(raw)
+        except Exception:
+            if raw.lstrip()[:1] in (b"<", b"{", b"["):
+                return raw                                 # header lied, body is plain
+            raise _Undecodable("br")
     elif enc not in ("gzip", "x-gzip", "deflate"):
         enc = ""
     if enc:
@@ -187,7 +225,7 @@ def _decode(raw, headers=None):
                 break
             except Exception:
                 continue
-    return raw.decode("utf-8", "replace")
+    return raw
 
 
 def fetch(url, timeout=25, max_bytes=2_000_000, headers=None):
@@ -468,6 +506,12 @@ class PoliteHandler(_ur.BaseHandler):
     handler_order = 100          # before the HTTP handlers add their defaults
 
     def http_request(self, req):
+        # A caller's user agent is kept only when it still carries the bot's own name (onpage/fetch.py
+        # adds phone tokens around it); anything else is replaced, so the bot never hides who it is.
+        mine = req.get_header("User-agent") or req.unredirected_hdrs.get("User-agent") or ""
+        if UA in mine:
+            before_request(req.full_url)
+            return req
         for k in [k for k in req.headers if k.lower() == "user-agent"]:
             del req.headers[k]
         for k in [k for k in req.unredirected_hdrs if k.lower() == "user-agent"]:
